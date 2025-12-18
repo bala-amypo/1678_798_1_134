@@ -1,23 +1,22 @@
 package com.example.demo.config;
 
-import io.swagger.v3.oas.models.*;
-import io.swagger.v3.oas.models.security.*;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 @Configuration
 public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
+        Server server = new Server();
+        server.setUrl("https://9144.408procr.amypo.ai/");
+        server.setDescription("API Gateway");
+
         return new OpenAPI()
-                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
-                .components(new Components().addSecuritySchemes(
-                        "bearerAuth",
-                        new SecurityScheme()
-                                .type(SecurityScheme.Type.HTTP)
-                                .scheme("bearer")
-                                .bearerFormat("JWT")
-                ));
+                .servers(List.of(server));
     }
 }
