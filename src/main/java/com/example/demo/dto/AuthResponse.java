@@ -2,22 +2,22 @@ package com.example.demo.dto;
 
 public class AuthResponse {
 
-    private String token;
-    private String email;
+    private String message;
+    private String username;
     private String role;
 
-    public AuthResponse(String token, String email, String role) {
-        this.token = token;
-        this.email = email;
+    public AuthResponse(String message, String username, String role) {
+        this.message = message;
+        this.username = username;
         this.role = role;
     }
 
-    public String getToken() {
-        return token;
+    public String getMessage() {
+        return message;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUsername() {
+        return username;
     }
 
     public String getRole() {
