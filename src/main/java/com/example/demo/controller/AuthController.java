@@ -1,3 +1,10 @@
+package com.example.demo.controller;
+
+import com.example.demo.dto.*;
+import com.example.demo.service.AuthService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.*;
+
 @RestController
 @RequestMapping("/auth")
 @Tag(name = "Authentication")
