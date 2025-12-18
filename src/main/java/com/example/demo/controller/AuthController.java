@@ -1,28 +1,36 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.*;
+import com.example.demo.dto.AuthRequest;
+import com.example.demo.dto.AuthResponse;
+import com.example.demo.dto.RegisterRequest;
 import com.example.demo.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "Authentication")
+@Tag(name = "Authentication", description = "User authentication and registration APIs")
 public class AuthController {
 
-    private final AuthService service;
+    private final AuthService authService;
 
-    public AuthController(AuthService service) {
-        this.service = service;
+    // ✅ Constructor Injection (MANDATORY)
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
+    // ✅ Register new user (ADMIN / IT)
     @PostMapping("/register")
-    public void register(@RequestBody RegisterRequest r) {
-        service.register(r);
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
+        AuthResponse response = authService.register(request);
+        return ResponseEntity.ok(response);
     }
 
+    // ✅ Login user (JWT issued)
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody AuthRequest r) {
-        return service.login(r);
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 }
