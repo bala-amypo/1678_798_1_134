@@ -8,15 +8,15 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RecoveryCurveProfile {
+public class AppUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String surgeryType;
-    private Integer dayNumber;
-    private Integer expectedPainLevel;
-    private Integer expectedMobilityLevel;
-    private Integer expectedFatigueLevel;
+    @Column(unique = true)
+    private String email;
+
+    private String password;
+    private String role;
 }
