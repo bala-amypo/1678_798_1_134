@@ -2,11 +2,13 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class PatientProfile {
 
@@ -15,7 +17,7 @@ public class PatientProfile {
     private Long id;
 
     @Column(unique = true)
-    private String patientid;
+    private String patientId;
 
     private String fullName;
     private Integer age;

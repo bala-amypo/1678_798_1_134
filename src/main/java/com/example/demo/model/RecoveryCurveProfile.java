@@ -5,7 +5,8 @@ import lombok.*;
 
 @Entity
 @Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class RecoveryCurveProfile {
 

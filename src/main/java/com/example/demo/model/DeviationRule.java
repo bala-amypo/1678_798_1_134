@@ -5,7 +5,8 @@ import lombok.*;
 
 @Entity
 @Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class DeviationRule {
 
@@ -13,8 +14,13 @@ public class DeviationRule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String surgeryType;
-    private String symptomParameter;
-    private Integer thresholdDeviation;
-    private Boolean active;
+    @Column(unique = true)
+    private String ruleCode;
+
+    private String parameter;
+    private Integer threshold;
+    private String severity;
+
+    @Builder.Default
+    private Boolean active = true;
 }
