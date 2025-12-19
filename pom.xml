@@ -26,7 +26,7 @@
     </parent>
 
     <!-- ===================== -->
-    <!-- Java Version -->
+    <!-- Properties -->
     <!-- ===================== -->
     <properties>
         <java.version>17</java.version>
@@ -49,7 +49,7 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!-- Spring Security (if needed) -->
+        <!-- Spring Security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -62,7 +62,30 @@
             <version>2.5.0</version>
         </dependency>
 
-        <!-- H2 Database (for development / tests) -->
+        <!-- ===================== -->
+        <!-- JWT (JJWT) -->
+        <!-- ===================== -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- H2 Database -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -92,7 +115,7 @@
     </dependencies>
 
     <!-- ===================== -->
-    <!-- Build Configuration -->
+    <!-- Build -->
     <!-- ===================== -->
     <build>
         <plugins>
@@ -103,7 +126,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- Maven Compiler Plugin -->
+            <!-- Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
