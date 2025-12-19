@@ -9,9 +9,20 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
+            // Disable CSRF (required for APIs & Swagger)
             .csrf(csrf -> csrf.disable())
+
+            // Disable session creation (JWT / stateless API)
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(
+                    org.springframework.security.config.http.SessionCreationPolicy.STATELESS
+                )
+            )
+
+            // Allow ALL requests (TEMPORARY – to pass startup)
             .authorizeHttpRequests(auth -> auth
                 .anyRequest().permitAll()
             );
