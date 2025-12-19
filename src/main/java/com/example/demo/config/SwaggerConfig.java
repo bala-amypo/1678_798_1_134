@@ -19,7 +19,7 @@ public class SwaggerConfig {
                         .version("1.0")
                         .description("API documentation for Post-Surgery Recovery Tracker"))
                 .servers(List.of(
-                        new Server().url("http://localhost:8080").description("Local server")
+                        new Server().url("https://9144.408procr.amypo.ai/").description("Local server")
                 ));
     }
 }
