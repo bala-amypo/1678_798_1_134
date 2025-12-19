@@ -6,7 +6,8 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -26,15 +27,8 @@ public class PatientProfile {
     private String email;
 
     private String surgeryType;
+
     private Boolean active;
+
     private LocalDateTime createdAt;
-}
-@Entity
-@Getter
-@Setter   // ← ADD THIS
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class PatientProfile {
-    ...
 }
