@@ -28,3 +28,6 @@ package com.example.demo.repository;
 
 interface ClinicalAlertRepository {
 }
+package com.example.demo.repository;
+
+interface ClinicalAlertRepository {}
