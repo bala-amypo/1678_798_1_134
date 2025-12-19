@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -18,7 +19,9 @@ public class DeviationRule {
     private String ruleCode;
 
     private String parameter;
+
     private Integer threshold;
+
     private String severity;
 
     @Builder.Default

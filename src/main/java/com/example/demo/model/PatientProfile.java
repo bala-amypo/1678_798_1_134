@@ -29,3 +29,12 @@ public class PatientProfile {
     private Boolean active;
     private LocalDateTime createdAt;
 }
+@Entity
+@Getter
+@Setter   // ← ADD THIS
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class PatientProfile {
+    ...
+}

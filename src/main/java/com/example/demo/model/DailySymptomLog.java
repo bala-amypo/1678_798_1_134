@@ -6,7 +6,8 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -17,18 +18,12 @@ public class DailySymptomLog {
     private Long id;
 
     private Long patientId;
+
     private LocalDate logDate;
+
     private Integer painLevel;
     private Integer mobilityLevel;
     private Integer fatigueLevel;
+
     private String additionalNotes;
-}
-@Entity
-@Getter
-@Setter   // ← ADD THIS
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class DailySymptomLog {
-    ...
 }
