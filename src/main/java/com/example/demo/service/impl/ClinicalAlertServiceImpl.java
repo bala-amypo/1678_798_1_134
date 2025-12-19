@@ -46,4 +46,3 @@ public class ClinicalAlertServiceImpl implements ClinicalAlertService {
         return repository.findById(id);
     }
 }
-
