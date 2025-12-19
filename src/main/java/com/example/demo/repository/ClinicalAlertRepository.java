@@ -24,3 +24,7 @@ package com.example.demo.repository;
 interface ClinicalAlertRepository {
     // intentionally empty
 }
+package com.example.demo.repository;
+
+interface ClinicalAlertRepository {
+}
