@@ -15,12 +15,12 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Recovery Tracker API")
-                        .description("Post-surgery recovery monitoring system")
+                        .title("Demo API")
+                        .description("Spring Boot Application API")
                         .version("1.0.0")
                 )
                 .servers(List.of(
-                        new Server().url("http://localhost:8080")
+                        new Server().url("https://9144.408procr.amypo.ai/")
                 ));
     }
 }
