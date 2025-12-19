@@ -23,3 +23,12 @@ public class DailySymptomLog {
     private Integer fatigueLevel;
     private String additionalNotes;
 }
+@Entity
+@Getter
+@Setter   // ← ADD THIS
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class DailySymptomLog {
+    ...
+}
