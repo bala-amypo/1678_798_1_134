@@ -11,38 +11,61 @@ import java.util.Optional;
 
 @Service
 public class DeviationRuleServiceImpl implements DeviationRuleService {
+    private final DeviationRuleRepository deviationRuleRepository;
 
-    private final DeviationRuleRepository repository;
-
-    public DeviationRuleServiceImpl(DeviationRuleRepository repository) {
-        this.repository = repository;
+    public DeviationRuleServiceImpl(DeviationRuleRepository deviationRuleRepository) {
+        this.deviationRuleRepository = deviationRuleRepository;
     }
 
     @Override
     public DeviationRule createRule(DeviationRule rule) {
-        return repository.save(rule);
+        if (rule.getThreshold() == null || rule.getThreshold() <= 0) {
+            throw new IllegalArgumentException("Threshold must be");
+        }
+        return deviationRuleRepository.save(rule);
     }
 
     @Override
-    public DeviationRule updateRule(Long id, DeviationRule rule) {
-        DeviationRule existing = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Rule not found"));
-        rule.setId(existing.getId());
-        return repository.save(rule);
+    public Optional<DeviationRule> getRuleByCode(String ruleCode) {
+        return deviationRuleRepository.findByRuleCode(ruleCode);
     }
 
     @Override
-    public List<DeviationRule> getAllRules() {
-        return repository.findAll();
+    public List<DeviationRule> getRulesBySurgery(String surgeryType) {
+        return deviationRuleRepository.findBySurgeryType(surgeryType);
+    }
+
+    @Override
+    public List<DeviationRule> getRulesBySurgeryType(String surgeryType) {
+        return deviationRuleRepository.findBySurgeryType(surgeryType);
     }
 
     @Override
     public List<DeviationRule> getActiveRules() {
-        return repository.findByActiveTrue();
+        return deviationRuleRepository.findByActiveTrue();
     }
 
     @Override
-    public Optional<DeviationRule> getRuleByCode(String code) {
-        return repository.findByRuleCode(code);
+    public DeviationRule updateRule(Long id, DeviationRule rule) {
+        DeviationRule existing = deviationRuleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Rule not found"));
+        
+        existing.setSurgeryType(rule.getSurgeryType());
+        existing.setParameter(rule.getParameter());
+        existing.setThreshold(rule.getThreshold());
+        existing.setSeverity(rule.getSeverity());
+        existing.setActive(rule.getActive());
+        
+        return deviationRuleRepository.save(existing);
+    }
+
+    @Override
+    public List<DeviationRule> getAllRules() {
+        return deviationRuleRepository.findAll();
+    }
+
+    @Override
+    public Optional<DeviationRule> getRuleById(Long id) {
+        return deviationRuleRepository.findById(id);
     }
 }

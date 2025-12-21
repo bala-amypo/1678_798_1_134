@@ -11,38 +11,59 @@ import java.util.Optional;
 
 @Service
 public class PatientProfileServiceImpl implements PatientProfileService {
+    private final PatientProfileRepository patientProfileRepository;
 
-    private final PatientProfileRepository repository;
-
-    public PatientProfileServiceImpl(PatientProfileRepository repository) {
-        this.repository = repository;
+    public PatientProfileServiceImpl(PatientProfileRepository patientProfileRepository) {
+        this.patientProfileRepository = patientProfileRepository;
     }
 
     @Override
-    public PatientProfile createPatient(PatientProfile profile) {
-        return repository.save(profile);
+    public PatientProfile createPatient(PatientProfile patient) {
+        if (patientProfileRepository.findByEmail(patient.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+        return patientProfileRepository.save(patient);
     }
 
     @Override
     public PatientProfile getPatientById(Long id) {
-        return repository.findById(id)
+        return patientProfileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
     }
 
     @Override
     public List<PatientProfile> getAllPatients() {
-        return repository.findAll();
+        return patientProfileRepository.findAll();
     }
 
     @Override
     public PatientProfile updatePatientStatus(Long id, boolean active) {
         PatientProfile patient = getPatientById(id);
         patient.setActive(active);
-        return repository.save(patient);
+        return patientProfileRepository.save(patient);
+    }
+
+    @Override
+    public PatientProfile updatePatient(Long id, PatientProfile patient) {
+        PatientProfile existingPatient = getPatientById(id);
+        existingPatient.setFullName(patient.getFullName());
+        existingPatient.setAge(patient.getAge());
+        existingPatient.setEmail(patient.getEmail());
+        existingPatient.setSurgeryType(patient.getSurgeryType());
+        existingPatient.setActive(patient.getActive());
+        return patientProfileRepository.save(existingPatient);
+    }
+
+    @Override
+    public void deletePatient(Long id) {
+        if (!patientProfileRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Patient not found");
+        }
+        patientProfileRepository.deleteById(id);
     }
 
     @Override
     public Optional<PatientProfile> findByPatientId(String patientId) {
-        return repository.findByPatientId(patientId);
+        return patientProfileRepository.findByPatientId(patientId);
     }
 }
