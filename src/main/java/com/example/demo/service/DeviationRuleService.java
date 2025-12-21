@@ -7,8 +7,11 @@ import java.util.Optional;
 
 public interface DeviationRuleService {
     DeviationRule createRule(DeviationRule rule);
+    Optional<DeviationRule> getRuleByCode(String ruleCode);
+    List<DeviationRule> getRulesBySurgery(String surgeryType);
+    List<DeviationRule> getRulesBySurgeryType(String surgeryType);
+    List<DeviationRule> getActiveRules();
     DeviationRule updateRule(Long id, DeviationRule rule);
     List<DeviationRule> getAllRules();
-    List<DeviationRule> getActiveRules();
-    Optional<DeviationRule> getRuleByCode(String code);
+    Optional<DeviationRule> getRuleById(Long id);
 }
