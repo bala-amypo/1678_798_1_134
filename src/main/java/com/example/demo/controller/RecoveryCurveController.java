@@ -3,33 +3,44 @@ package com.example.demo.controller;
 import com.example.demo.model.RecoveryCurveProfile;
 import com.example.demo.service.RecoveryCurveService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import javax.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/recovery-curves")
-@Tag(name = "Recovery Curves")
+@Tag(name = "Recovery Curves", description = "Recovery curve profile management")
 public class RecoveryCurveController {
+    private final RecoveryCurveService recoveryCurveService;
 
-    private final RecoveryCurveService service;
-
-    public RecoveryCurveController(RecoveryCurveService service) {
-        this.service = service;
+    public RecoveryCurveController(RecoveryCurveService recoveryCurveService) {
+        this.recoveryCurveService = recoveryCurveService;
     }
 
     @PostMapping
-    public RecoveryCurveProfile create(@RequestBody RecoveryCurveProfile curve) {
-        return service.createCurveEntry(curve);
+    public ResponseEntity<RecoveryCurveProfile> createCurveEntry(@Valid @RequestBody RecoveryCurveProfile entry) {
+        RecoveryCurveProfile created = recoveryCurveService.createCurveEntry(entry);
+        return ResponseEntity.ok(created);
     }
 
-    @GetMapping("/surgery/{type}")
-    public List<RecoveryCurveProfile> getBySurgery(@PathVariable String type) {
-        return service.getCurveForSurgery(type);
+    @GetMapping("/surgery/{surgeryType}")
+    public ResponseEntity<List<RecoveryCurveProfile>> getCurveForSurgery(@PathVariable String surgeryType) {
+        List<RecoveryCurveProfile> curves = recoveryCurveService.getCurveForSurgery(surgeryType);
+        return ResponseEntity.ok(curves);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<RecoveryCurveProfile> getCurveById(@PathVariable Long id) {
+        Optional<RecoveryCurveProfile> curve = recoveryCurveService.getCurveById(id);
+        return curve.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    public List<RecoveryCurveProfile> getAll() {
-        return service.getAllCurves();
+    public ResponseEntity<List<RecoveryCurveProfile>> getAllCurves() {
+        List<RecoveryCurveProfile> curves = recoveryCurveService.getAllCurves();
+        return ResponseEntity.ok(curves);
     }
 }
