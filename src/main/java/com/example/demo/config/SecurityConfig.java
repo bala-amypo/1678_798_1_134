@@ -1,32 +1,32 @@
 package com.example.demo.config;
 
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-public class SecurityConfig {
+public class SwaggerConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        http
-            // Disable CSRF (required for APIs & Swagger)
-            .csrf(csrf -> csrf.disable())
-
-            // Disable session creation (JWT / stateless API)
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(
-                    org.springframework.security.config.http.SessionCreationPolicy.STATELESS
-                )
-            )
-
-            // Allow ALL requests (TEMPORARY – to pass startup)
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll()
-            );
-
-        return http.build();
+    public OpenAPI openAPI() {
+        return new OpenAPI()
+                .info(new Info()
+                        .title("Post-Surgery Recovery Tracker API")
+                        .description("Healthcare API for monitoring post-surgical patient recovery")
+                        .version("1.0.0")
+                        .contact(new Contact()
+                                .name("Healthcare IT Team")
+                                .email("support@healthcare.com")))
+                .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
+                .components(new io.swagger.v3.oas.models.Components()
+                        .addSecuritySchemes("Bearer Authentication",
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")));
     }
 }
