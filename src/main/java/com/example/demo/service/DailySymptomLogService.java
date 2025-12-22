@@ -14,3 +14,10 @@ public interface DailySymptomLogService {
     DailySymptomLog updateSymptomLog(Long id, DailySymptomLog log);
     List<DailySymptomLog> getAllLogs();
 }
+package com.example.demo.service;
+
+import com.example.demo.model.DailySymptomLog;
+
+public interface DailySymptomLogService {
+    DailySymptomLog saveDailyLog(DailySymptomLog log);
+}
