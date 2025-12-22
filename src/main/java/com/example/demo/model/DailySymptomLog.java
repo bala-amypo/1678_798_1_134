@@ -86,3 +86,6 @@ public class DailySymptomLog {
     public LocalDateTime getSubmittedAt() { return submittedAt; }
     public void setSubmittedAt(LocalDateTime submittedAt) { this.submittedAt = submittedAt; }
 }
+private Integer painLevel;
+private Integer fatigueLevel;
+private LocalDate logDate;
