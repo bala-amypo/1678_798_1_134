@@ -9,8 +9,8 @@ public class AuthRequest {
     private String email;
 
     @NotBlank
-    @Size(min = 6)
     private String password;
 
-    // getters & setters
+    public String getEmail() { return email; }
+    public String getPassword() { return password; }
 }

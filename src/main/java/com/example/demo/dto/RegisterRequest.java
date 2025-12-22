@@ -1,5 +1,6 @@
 package com.example.demo.dto;
 
+import com.example.demo.model.UserRole;
 import jakarta.validation.constraints.*;
 
 public class RegisterRequest {
@@ -9,14 +10,15 @@ public class RegisterRequest {
     private String email;
 
     @NotBlank
-    @Size(min = 6)
     private String password;
 
     @NotBlank
     private String fullName;
 
-    @NotNull
     private UserRole role;
 
-    // getters & setters
+    public String getEmail() { return email; }
+    public String getPassword() { return password; }
+    public String getFullName() { return fullName; }
+    public UserRole getRole() { return role; }
 }
