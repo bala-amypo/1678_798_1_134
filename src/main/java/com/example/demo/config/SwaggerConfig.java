@@ -1,32 +1,45 @@
-package com.example.demo.config;
+package com.example.demo.security;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
 
-@Configuration
-public class SwaggerConfig {
+import java.security.Key;
+import java.util.Date;
 
-    @Bean
-    public OpenAPI openAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Post-Surgery Recovery Tracker API")
-                        .description("Healthcare API for monitoring post-surgical patient recovery")
-                        .version("1.0.0")
-                        .contact(new Contact()
-                                .name("Healthcare IT Team")
-                                .email("support@healthcare.com")))
-                .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
-                .components(new io.swagger.v3.oas.models.Components()
-                        .addSecuritySchemes("Bearer Authentication",
-                                new SecurityScheme()
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer")
-                                        .bearerFormat("JWT")));
+@Component
+public class JwtTokenProvider {
+
+    private static final long EXPIRATION = 86400000; // 1 day
+    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+
+    public String generateToken(String email) {
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .signWith(key)
+                .compact();
+    }
+
+    public String getEmailFromToken(String token) {
+        return getClaims(token).getSubject();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            getClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    private Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }
