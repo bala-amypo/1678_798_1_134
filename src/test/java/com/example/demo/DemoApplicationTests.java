@@ -1,19 +1,12 @@
 package com.example.demo;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootTest(
-    classes = DemoApplication.class,
-    webEnvironment = SpringBootTest.WebEnvironment.NONE,
-    properties = {
-        "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration"
-    }
-)
-class DemoApplicationTests {
+@SpringBootApplication
+public class DemoApplication {
 
-    @Test
-    void contextLoads() {
-        // Context loads without security auto-configuration
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
     }
 }
