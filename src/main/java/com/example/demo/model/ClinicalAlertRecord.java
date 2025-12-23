@@ -6,10 +6,13 @@ public class ClinicalAlertRecord {
 
     private Long id;
     private String message;
+    private boolean resolved;
     private LocalDateTime createdAt;
 
     public ClinicalAlertRecord() {
     }
+
+    // -------- getters & setters --------
 
     public Long getId() {
         return id;
@@ -25,6 +28,14 @@ public class ClinicalAlertRecord {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public boolean isResolved() {
+        return resolved;
+    }
+
+    public void setResolved(boolean resolved) {
+        this.resolved = resolved;
     }
 
     public LocalDateTime getCreatedAt() {
