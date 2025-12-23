@@ -5,7 +5,7 @@ import com.example.demo.model.AppUser;
 public class JwtTokenProvider {
 
     public String generateToken(AppUser user) {
-        return "jwt";
+        return "jwt-token-value";
     }
 
     public boolean validateToken(String token) {
