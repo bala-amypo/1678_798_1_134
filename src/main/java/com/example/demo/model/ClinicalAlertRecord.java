@@ -1,33 +1,37 @@
 package com.example.demo.model;
 
+import java.time.LocalDateTime;
+
 public class ClinicalAlertRecord {
 
     private Long id;
-    private Long patientId;
-    private Long logId;
-    private String alertType;
-    private String severity;
     private String message;
-    private Boolean resolved = false;
+    private LocalDateTime createdAt;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public ClinicalAlertRecord() {
+    }
 
-    public Long getPatientId() { return patientId; }
-    public void setPatientId(Long patientId) { this.patientId = patientId; }
+    public Long getId() {
+        return id;
+    }
 
-    public Long getLogId() { return logId; }
-    public void setLogId(Long logId) { this.logId = logId; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getAlertType() { return alertType; }
-    public void setAlertType(String alertType) { this.alertType = alertType; }
+    public String getMessage() {
+        return message;
+    }
 
-    public String getSeverity() { return severity; }
-    public void setSeverity(String severity) { this.severity = severity; }
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
-    public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-    public Boolean getResolved() { return resolved; }
-    public void setResolved(Boolean resolved) { this.resolved = resolved; }
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
