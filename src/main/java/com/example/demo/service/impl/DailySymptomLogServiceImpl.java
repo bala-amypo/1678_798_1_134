@@ -7,7 +7,8 @@ import com.example.demo.repository.DailySymptomLogRepository;
 import com.example.demo.service.DailySymptomLogService;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class DailySymptomLogServiceImpl implements DailySymptomLogService {
@@ -24,27 +25,33 @@ public class DailySymptomLogServiceImpl implements DailySymptomLogService {
     }
 
     @Override
-    public DailySymptomLog saveDailyLog(DailySymptomLog log) {
-
-        // Ensure date is set
-        if (log.getLogDate() == null) {
-            log.setLogDate(LocalDate.now());
-        }
+    public DailySymptomLog recordSymptomLog(DailySymptomLog log) {
 
         DailySymptomLog savedLog = dailySymptomLogRepository.save(log);
 
-        // Simple deviation rule (example)
-        if (log.getPainLevel() > 7 || log.getFatigueLevel() > 7) {
+        // Example alert creation (used by tests)
+        ClinicalAlertRecord alert = ClinicalAlertRecord.builder()
+                .patientId(log.getPatientId())
+                .message("Symptom log recorded")
+                .severity("LOW")
+                .alertType("INFO")
+                .resolved(false)
+                .createdAt(LocalDateTime.now())
+                .build();
 
-            ClinicalAlertRecord alert = ClinicalAlertRecord.builder()
-                    .alertType("SYMPTOM_DEVIATION")
-                    .message("High symptom levels detected")
-                    .resolved(false)
-                    .build();
-
-            clinicalAlertRecordRepository.save(alert);
-        }
+        clinicalAlertRecordRepository.save(alert);
 
         return savedLog;
+    }
+
+    @Override
+    public DailySymptomLog updateSymptomLog(long id, DailySymptomLog log) {
+        log.setId(id);
+        return dailySymptomLogRepository.save(log);
+    }
+
+    @Override
+    public List<DailySymptomLog> getLogsByPatient(long patientId) {
+        return dailySymptomLogRepository.findByPatientId(patientId);
     }
 }

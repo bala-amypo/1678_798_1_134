@@ -10,6 +10,7 @@ public class DeviationRule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String ruleCode;
     private String surgeryType;
     private String parameter;
     private Double threshold;
@@ -18,7 +19,7 @@ public class DeviationRule {
 
     public DeviationRule() {}
 
-    /* ============== BUILDER ============== */
+    /* ========= BUILDER ========= */
 
     public static Builder builder() {
         return new Builder();
@@ -26,6 +27,11 @@ public class DeviationRule {
 
     public static class Builder {
         private final DeviationRule rule = new DeviationRule();
+
+        public Builder ruleCode(String ruleCode) {
+            rule.setRuleCode(ruleCode);
+            return this;
+        }
 
         public Builder surgeryType(String surgeryType) {
             rule.setSurgeryType(surgeryType);
@@ -57,10 +63,14 @@ public class DeviationRule {
         }
     }
 
-    /* ============== GETTERS / SETTERS ============== */
+    /* ========= GETTERS ========= */
 
     public Long getId() {
         return id;
+    }
+
+    public String getRuleCode() {
+        return ruleCode;
     }
 
     public String getSurgeryType() {
@@ -79,12 +89,18 @@ public class DeviationRule {
         return severity;
     }
 
-    public boolean isActive() {
+    public boolean getActive() {
         return active;
     }
 
+    /* ========= SETTERS ========= */
+
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setRuleCode(String ruleCode) {
+        this.ruleCode = ruleCode;
     }
 
     public void setSurgeryType(String surgeryType) {
