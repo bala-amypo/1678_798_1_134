@@ -5,14 +5,11 @@ import com.example.demo.model.DeviationRule;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Plain repository abstraction
- * NO Spring Data
- * NO JPA
- */
 public interface DeviationRuleRepository {
 
     Optional<DeviationRule> findByRuleCode(String ruleCode);
+
+    List<DeviationRule> findBySurgeryType(String surgeryType); // ✅ FIX
 
     List<DeviationRule> findByActiveTrue();
 
@@ -22,4 +19,3 @@ public interface DeviationRuleRepository {
 
     DeviationRule save(DeviationRule rule);
 }
-    

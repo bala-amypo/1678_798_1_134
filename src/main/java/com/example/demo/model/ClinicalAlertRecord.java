@@ -1,48 +1,76 @@
 package com.example.demo.model;
 
-import java.time.LocalDateTime;
-
 public class ClinicalAlertRecord {
 
     private Long id;
+    private Long patientId;
+    private Long logId;
+    private String alertType;
     private String message;
-    private boolean resolved;
-    private LocalDateTime createdAt;
+    private boolean resolved = false;
 
     public ClinicalAlertRecord() {
     }
 
-    // -------- getters & setters --------
-
-    public Long getId() {
-        return id;
+    // ---------- BUILDER ----------
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public static class Builder {
+        private final ClinicalAlertRecord record = new ClinicalAlertRecord();
+
+        public Builder id(Long id) {
+            record.setId(id);
+            return this;
+        }
+
+        public Builder patientId(Long patientId) {
+            record.setPatientId(patientId);
+            return this;
+        }
+
+        public Builder logId(Long logId) {
+            record.setLogId(logId);
+            return this;
+        }
+
+        public Builder alertType(String alertType) {
+            record.setAlertType(alertType);
+            return this;
+        }
+
+        public Builder message(String message) {   // ✅ FIX
+            record.setMessage(message);
+            return this;
+        }
+
+        public Builder resolved(boolean resolved) {
+            record.setResolved(resolved);
+            return this;
+        }
+
+        public ClinicalAlertRecord build() {
+            return record;
+        }
     }
 
-    public String getMessage() {
-        return message;
-    }
+    // ---------- GETTERS / SETTERS ----------
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+    public Long getPatientId() { return patientId; }
+    public void setPatientId(Long patientId) { this.patientId = patientId; }
 
-    public boolean isResolved() {
-        return resolved;
-    }
+    public Long getLogId() { return logId; }
+    public void setLogId(Long logId) { this.logId = logId; }
 
-    public void setResolved(boolean resolved) {
-        this.resolved = resolved;
-    }
+    public String getAlertType() { return alertType; }
+    public void setAlertType(String alertType) { this.alertType = alertType; }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+    public boolean getResolved() { return resolved; }
+    public void setResolved(boolean resolved) { this.resolved = resolved; }
 }
