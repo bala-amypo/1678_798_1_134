@@ -1,37 +1,109 @@
 package com.example.demo.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "deviation_rules")
 public class DeviationRule {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String ruleCode;
+
     private String surgeryType;
     private String parameter;
-    private Integer threshold;
+    private Double threshold;
     private String severity;
-    private boolean active = true;
+    private boolean active;
 
-    public DeviationRule() {
+    public DeviationRule() {}
+
+    /* ============== BUILDER ============== */
+
+    public static Builder builder() {
+        return new Builder();
     }
 
-    // ---------- GETTERS / SETTERS ----------
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public static class Builder {
+        private final DeviationRule rule = new DeviationRule();
 
-    public String getRuleCode() { return ruleCode; }
-    public void setRuleCode(String ruleCode) { this.ruleCode = ruleCode; }
+        public Builder surgeryType(String surgeryType) {
+            rule.setSurgeryType(surgeryType);
+            return this;
+        }
 
-    public String getSurgeryType() { return surgeryType; }
-    public void setSurgeryType(String surgeryType) { this.surgeryType = surgeryType; }
+        public Builder parameter(String parameter) {
+            rule.setParameter(parameter);
+            return this;
+        }
 
-    public String getParameter() { return parameter; }
-    public void setParameter(String parameter) { this.parameter = parameter; }
+        public Builder threshold(Double threshold) {
+            rule.setThreshold(threshold);
+            return this;
+        }
 
-    public Integer getThreshold() { return threshold; }
-    public void setThreshold(Integer threshold) { this.threshold = threshold; }
+        public Builder severity(String severity) {
+            rule.setSeverity(severity);
+            return this;
+        }
 
-    public String getSeverity() { return severity; }
-    public void setSeverity(String severity) { this.severity = severity; }
+        public Builder active(boolean active) {
+            rule.setActive(active);
+            return this;
+        }
 
-    public boolean getActive() { return active; }
-    public void setActive(boolean active) { this.active = active; }
+        public DeviationRule build() {
+            return rule;
+        }
+    }
+
+    /* ============== GETTERS / SETTERS ============== */
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getSurgeryType() {
+        return surgeryType;
+    }
+
+    public String getParameter() {
+        return parameter;
+    }
+
+    public Double getThreshold() {
+        return threshold;
+    }
+
+    public String getSeverity() {
+        return severity;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setSurgeryType(String surgeryType) {
+        this.surgeryType = surgeryType;
+    }
+
+    public void setParameter(String parameter) {
+        this.parameter = parameter;
+    }
+
+    public void setThreshold(Double threshold) {
+        this.threshold = threshold;
+    }
+
+    public void setSeverity(String severity) {
+        this.severity = severity;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 }

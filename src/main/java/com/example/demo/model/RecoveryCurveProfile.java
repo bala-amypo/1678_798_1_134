@@ -1,103 +1,81 @@
 package com.example.demo.model;
 
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
 
-/**
- * Plain Java model
- * - NO Lombok
- * - NO Swagger
- * - NO JWT
- * - NO validation
- * - Safe for Spring Boot 3 compilation
- */
+@Entity
+@Table(name = "recovery_curve_profiles")
 public class RecoveryCurveProfile {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String surgeryType;
-    private Integer dayNumber;
-    private Integer expectedPainLevel;
-    private Integer expectedMobilityLevel;
-    private Integer expectedFatigueLevel;
-    private LocalDateTime createdAt;
+    private int dayNumber;
+    private double expectedValue;
 
-    // ---------- No-Args Constructor ----------
-    public RecoveryCurveProfile() {
+    public RecoveryCurveProfile() {}
+
+    /* ============== BUILDER ============== */
+
+    public static Builder builder() {
+        return new Builder();
     }
 
-    // ---------- All-Args Constructor ----------
-    public RecoveryCurveProfile(
-            Long id,
-            String surgeryType,
-            Integer dayNumber,
-            Integer expectedPainLevel,
-            Integer expectedMobilityLevel,
-            Integer expectedFatigueLevel,
-            LocalDateTime createdAt
-    ) {
-        this.id = id;
-        this.surgeryType = surgeryType;
-        this.dayNumber = dayNumber;
-        this.expectedPainLevel = expectedPainLevel;
-        this.expectedMobilityLevel = expectedMobilityLevel;
-        this.expectedFatigueLevel = expectedFatigueLevel;
-        this.createdAt = createdAt;
+    public static class Builder {
+        private final RecoveryCurveProfile profile = new RecoveryCurveProfile();
+
+        public Builder surgeryType(String surgeryType) {
+            profile.setSurgeryType(surgeryType);
+            return this;
+        }
+
+        public Builder dayNumber(int dayNumber) {
+            profile.setDayNumber(dayNumber);
+            return this;
+        }
+
+        public Builder expectedValue(double value) {
+            profile.setExpectedValue(value);
+            return this;
+        }
+
+        public RecoveryCurveProfile build() {
+            return profile;
+        }
     }
 
-    // ---------- Getters & Setters ----------
+    /* ============== GETTERS / SETTERS ============== */
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getSurgeryType() {
         return surgeryType;
     }
 
+    public int getDayNumber() {
+        return dayNumber;
+    }
+
+    public double getExpectedValue() {
+        return expectedValue;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public void setSurgeryType(String surgeryType) {
         this.surgeryType = surgeryType;
     }
 
-    public Integer getDayNumber() {
-        return dayNumber;
-    }
-
-    public void setDayNumber(Integer dayNumber) {
+    public void setDayNumber(int dayNumber) {
         this.dayNumber = dayNumber;
     }
 
-    public Integer getExpectedPainLevel() {
-        return expectedPainLevel;
-    }
-
-    public void setExpectedPainLevel(Integer expectedPainLevel) {
-        this.expectedPainLevel = expectedPainLevel;
-    }
-
-    public Integer getExpectedMobilityLevel() {
-        return expectedMobilityLevel;
-    }
-
-    public void setExpectedMobilityLevel(Integer expectedMobilityLevel) {
-        this.expectedMobilityLevel = expectedMobilityLevel;
-    }
-
-    public Integer getExpectedFatigueLevel() {
-        return expectedFatigueLevel;
-    }
-
-    public void setExpectedFatigueLevel(Integer expectedFatigueLevel) {
-        this.expectedFatigueLevel = expectedFatigueLevel;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setExpectedValue(double expectedValue) {
+        this.expectedValue = expectedValue;
     }
 }
