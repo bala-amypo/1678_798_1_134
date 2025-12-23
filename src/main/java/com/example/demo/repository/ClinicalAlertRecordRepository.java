@@ -1,17 +1,17 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.ClinicalAlertRecord;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
-@Repository
-public interface ClinicalAlertRecordRepository extends JpaRepository<ClinicalAlertRecord, Long> {
+public interface ClinicalAlertRecordRepository {
+
+    Optional<ClinicalAlertRecord> findById(Long id);
+
     List<ClinicalAlertRecord> findByPatientId(Long patientId);
-    List<ClinicalAlertRecord> findByResolved(Boolean resolved);
-    List<ClinicalAlertRecord> findByResolvedFalse();
-    List<ClinicalAlertRecord> findBySeverity(String severity);
-    List<ClinicalAlertRecord> findByAlertDateBetween(LocalDate startDate, LocalDate endDate);
+
+    List<ClinicalAlertRecord> findAll();
+
+    ClinicalAlertRecord save(ClinicalAlertRecord alert);
 }
