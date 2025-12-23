@@ -28,7 +28,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse register(RegisterRequest request) {
         AppUser user = new AppUser();
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword()); // plain text (TEST SAFE)
+        user.setPassword(request.getPassword()); // plain-text for tests
         user.setFullName(request.getFullName());
         user.setRole(UserRole.CLINICIAN);
 
@@ -43,4 +43,14 @@ public class AuthServiceImpl implements AuthService {
         Optional<AppUser> optionalUser =
                 appUserRepository.findByEmail(request.getEmail());
 
-        AppUser user = o
+        AppUser user = optionalUser
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!user.getPassword().equals(request.getPassword())) {
+            throw new RuntimeException("Invalid credentials");
+        }
+
+        String token = jwtTokenProvider.generateToken(user);
+        return new AuthResponse(user.getEmail(), token);
+    }
+}
