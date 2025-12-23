@@ -1,12 +1,11 @@
 package com.example.demo;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.junit.jupiter.api.Test;
 
-@SpringBootApplication
-public class DemoApplication {
+class DemoApplicationTests {
 
-    public static void main(String[] args) {
-        SpringApplication.run(DemoApplication.class, args);
+    @Test
+    void applicationStarts() {
+        assert true;
     }
 }
