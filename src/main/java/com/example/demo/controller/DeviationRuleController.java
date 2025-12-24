@@ -1,52 +1,44 @@
-// package com.example.demo.controller;
+package com.example.demo.controller;
 
-// import com.example.demo.model.DeviationRule;
-// import com.example.demo.service.DeviationRuleService;
-// import io.swagger.v3.oas.annotations.tags.Tag;
-// import javax.validation.Valid;
-// import org.springframework.http.ResponseEntity;
-// import org.springframework.web.bind.annotation.*;
+import com.example.demo.model.DeviationRule;
+import com.example.demo.service.DeviationRuleService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-// import java.util.List;
-// import java.util.Optional;
+import java.util.List;
 
-// @RestController
-// @RequestMapping("/api/deviation-rules")
-// @Tag(name = "Deviation Rules", description = "Deviation rule management")
-// public class DeviationRuleController {
-//     private final DeviationRuleService deviationRuleService;
+@RestController
+@RequestMapping("/api/rules")
+@RequiredArgsConstructor
+public class DeviationRuleController {
 
-//     public DeviationRuleController(DeviationRuleService deviationRuleService) {
-//         this.deviationRuleService = deviationRuleService;
-//     }
+    private final DeviationRuleService deviationRuleService;
 
-//     @PostMapping
-//     public ResponseEntity<DeviationRule> createRule(@Valid @RequestBody DeviationRule rule) {
-//         DeviationRule created = deviationRuleService.createRule(rule);
-//         return ResponseEntity.ok(created);
-//     }
+    @PostMapping
+    public ResponseEntity<DeviationRule> create(
+            @RequestBody DeviationRule rule) {
+        return ResponseEntity.ok(deviationRuleService.createRule(rule));
+    }
 
-//     @PutMapping("/{id}")
-//     public ResponseEntity<DeviationRule> updateRule(@PathVariable Long id, @Valid @RequestBody DeviationRule rule) {
-//         DeviationRule updated = deviationRuleService.updateRule(id, rule);
-//         return ResponseEntity.ok(updated);
-//     }
+    @GetMapping("/active")
+    public ResponseEntity<List<DeviationRule>> getActiveRules() {
+        return ResponseEntity.ok(deviationRuleService.getActiveRules());
+    }
 
-//     @GetMapping("/active")
-//     public ResponseEntity<List<DeviationRule>> getActiveRules() {
-//         List<DeviationRule> rules = deviationRuleService.getActiveRules();
-//         return ResponseEntity.ok(rules);
-//     }
+    @GetMapping("/{code}")
+    public ResponseEntity<DeviationRule> getByCode(
+            @PathVariable String code) {
+        return deviationRuleService.getRuleByCode(code)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 
-//     @GetMapping("/{id}")
-//     public ResponseEntity<DeviationRule> getRuleById(@PathVariable Long id) {
-//         Optional<DeviationRule> rule = deviationRuleService.getRuleById(id);
-//         return rule.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
-//     }
-
-//     @GetMapping
-//     public ResponseEntity<List<DeviationRule>> getAllRules() {
-//         List<DeviationRule> rules = deviationRuleService.getAllRules();
-//         return ResponseEntity.ok(rules);
-//     }
-// }
+    @PutMapping("/{id}")
+    public ResponseEntity<DeviationRule> update(
+            @PathVariable Long id,
+            @RequestBody DeviationRule rule) {
+        return ResponseEntity.ok(
+                deviationRuleService.updateRule(id, rule));
+    }
+}
