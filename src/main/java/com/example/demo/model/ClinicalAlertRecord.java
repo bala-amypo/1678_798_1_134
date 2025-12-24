@@ -1,43 +1,40 @@
 package com.example.demo.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
 
-import java.time.LocalDate;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "clinical_alert_records")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClinicalAlertRecord {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotNull
-    private Long patientId;
-
-    @NotNull
-    private Long logId;
-
-    @NotBlank
-    private String alertType;
-
-    @NotBlank
-    private String severity;
-
-    @Lob
-    @NotBlank
-    private String message;
-
+    
     @Column(nullable = false)
+    private Long patientId;
+    
+    private Long logId;
+    
+    @Column(nullable = false)
+    private String alertType;
+    
+    @Column(nullable = false)
+    private String severity;
+    
+    private String message;
+    
+    @Builder.Default
     private Boolean resolved = false;
-
-    @CreationTimestamp
-    private LocalDate alertDate;
+    
+    @CreatedDate
+    private LocalDateTime createdAt;
 }

@@ -1,37 +1,35 @@
 package com.example.demo.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.*;
+import javax.persistence.*;
 
 @Entity
-@Table(name = "deviation_rules")
-@Data
+@Table(name = "deviation_rules", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "ruleCode")
+})
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeviationRule {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotBlank
-    private String surgeryType;
-
-    @NotBlank
+    
+    @Column(unique = true, nullable = false)
     private String ruleCode;
-
-    @NotBlank
-    private String parameter;
-
-    @NotNull
-    @Positive
-    private Integer threshold;
-
-    @NotBlank
-    private String severity;
-
+    
     @Column(nullable = false)
+    private String parameter; // PAIN, MOBILITY, FATIGUE
+    
+    @Column(nullable = false)
+    private Integer threshold;
+    
+    @Column(nullable = false)
+    private String severity; // LOW, MEDIUM, HIGH
+    
+    @Builder.Default
     private Boolean active = true;
 }

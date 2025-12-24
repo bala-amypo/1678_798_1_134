@@ -1,54 +1,45 @@
 package com.example.demo.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(
-    name = "patient_profiles",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = "patientId"),
-        @UniqueConstraint(columnNames = "email")
-    }
-)
-@Data
+@Table(name = "patient_profiles")
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class PatientProfile {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotBlank
-    @Column(nullable = false, unique = true)
+    
+    @Column(unique = true, nullable = false)
     private String patientId;
-
-    @NotBlank
+    
     @Column(nullable = false)
     private String fullName;
-
-    @NotNull
-    @Positive
+    
     private Integer age;
-
-    @Email
-    @NotBlank
-    @Column(nullable = false, unique = true)
+    
+    @Column(nullable = false)
     private String email;
-
-    @NotBlank
+    
     @Column(nullable = false)
     private String surgeryType;
-
-    @Column(nullable = false)
+    
+    @Builder.Default
     private Boolean active = true;
-
-    @CreationTimestamp
+    
+    private LocalDate surgeryDate;
+    
+    @CreatedDate
     private LocalDateTime createdAt;
 }
