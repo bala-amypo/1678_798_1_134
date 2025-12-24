@@ -13,7 +13,7 @@ public class TestResultListener implements ITestListener {
     @Override
     public void onTestFailure(ITestResult result) {
         System.out.println(result.getMethod().getMethodName() + " - FAIL");
-    }
+    }v
  
     @Override
     public void onTestSkipped(ITestResult result) {
