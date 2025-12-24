@@ -13,7 +13,7 @@ public class JwtTokenProvider {
     private final String secret;
     private final long validityInMs;
 
-    // ⚠️ REQUIRED BY TEST SUITE — DO NOT CHANGE
+    // REQUIRED constructor — DO NOT CHANGE
     public JwtTokenProvider(String secret, long validityInMs) {
         this.secret = secret;
         this.validityInMs = validityInMs;
@@ -51,7 +51,7 @@ public class JwtTokenProvider {
         try {
             getClaims(token);
             return true;
-        } catch (Exception ex) {
+        } catch (Exception e) {
             return false;
         }
     }
