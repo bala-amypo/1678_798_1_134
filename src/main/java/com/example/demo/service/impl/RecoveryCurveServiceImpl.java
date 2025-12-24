@@ -3,27 +3,43 @@ package com.example.demo.service.impl;
 import com.example.demo.model.RecoveryCurveProfile;
 import com.example.demo.repository.RecoveryCurveProfileRepository;
 import com.example.demo.service.RecoveryCurveService;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
-@RequiredArgsConstructor
 public class RecoveryCurveServiceImpl implements RecoveryCurveService {
 
     private final RecoveryCurveProfileRepository repository;
 
-    @Override
-    public RecoveryCurveProfile createCurveEntry(RecoveryCurveProfile curve) {
-        return repository.save(curve);
+    public RecoveryCurveServiceImpl(
+            RecoveryCurveProfileRepository repository) {
+        this.repository = repository;
     }
 
     @Override
-    public List<RecoveryCurveProfile> getCurveForSurgery(String surgeryType) {
-        return repository.findBySurgeryTypeOrderByDayNumberAsc(surgeryType);
+    public RecoveryCurveProfile createCurveEntry(
+            RecoveryCurveProfile entry) {
+        return repository.save(entry);
+    }
+
+    @Override
+    public List<RecoveryCurveProfile> getCurveForSurgery(
+            String surgeryType) {
+        return repository
+                .findBySurgeryTypeOrderByDayNumberAsc(surgeryType);
     }
 
     @Override
     public List<RecoveryCurveProfile> getAllCurves() {
         return repository.findAll();
+    }
+
+    @Override
+    public Optional<RecoveryCurveProfile> getCurveByDayAndSurgery(
+            String surgeryType,
+            Integer dayNumber) {
+
+        return repository
+                .findBySurgeryTypeAndDayNumber(surgeryType, dayNumber);
     }
 }

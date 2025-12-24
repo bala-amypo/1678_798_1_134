@@ -7,13 +7,13 @@ import java.util.Optional;
 
 public interface PatientProfileService {
 
-    PatientProfile createPatient(PatientProfile profile);
+    PatientProfile createPatient(PatientProfile patient);
 
     PatientProfile getPatientById(Long id);
 
     List<PatientProfile> getAllPatients();
 
-    Optional<PatientProfile> findByPatientId(String patientId);
-
     PatientProfile updatePatientStatus(Long id, boolean active);
+
+    Optional<PatientProfile> findByPatientId(String patientId);
 }

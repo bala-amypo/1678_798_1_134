@@ -4,19 +4,29 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.ClinicalAlertRecord;
 import com.example.demo.repository.ClinicalAlertRecordRepository;
 import com.example.demo.service.ClinicalAlertService;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
 
-@RequiredArgsConstructor
 public class ClinicalAlertServiceImpl implements ClinicalAlertService {
 
     private final ClinicalAlertRecordRepository repository;
 
+    public ClinicalAlertServiceImpl(
+            ClinicalAlertRecordRepository repository) {
+        this.repository = repository;
+    }
+
     @Override
-    public List<ClinicalAlertRecord> getAllAlerts() {
-        return repository.findAll();
+    public ClinicalAlertRecord createAlert(
+            ClinicalAlertRecord alert) {
+        return repository.save(alert);
+    }
+
+    @Override
+    public List<ClinicalAlertRecord> getAlertsByPatient(
+            Long patientId) {
+        return repository.findByPatientId(patientId);
     }
 
     @Override
@@ -25,16 +35,18 @@ public class ClinicalAlertServiceImpl implements ClinicalAlertService {
     }
 
     @Override
-    public List<ClinicalAlertRecord> getAlertsByPatient(Long patientId) {
-        return repository.findByPatientId(patientId);
+    public ClinicalAlertRecord resolveAlert(Long alertId) {
+
+        ClinicalAlertRecord alert = repository.findById(alertId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Alert not found"));
+
+        alert.setResolved(true);
+        return repository.save(alert);
     }
 
     @Override
-    public ClinicalAlertRecord resolveAlert(Long id) {
-        ClinicalAlertRecord alert = repository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Alert not found"));
-        alert.setResolved(true);
-        return repository.save(alert);
+    public List<ClinicalAlertRecord> getAllAlerts() {
+        return repository.findAll();
     }
 }
