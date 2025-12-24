@@ -7,11 +7,14 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface DailySymptomLogRepository extends JpaRepository<DailySymptomLog, Long> {
+public interface DailySymptomLogRepository
+        extends JpaRepository<DailySymptomLog, Long> {
 
     List<DailySymptomLog> findByPatientId(Long patientId);
 
-    Optional<DailySymptomLog> findByPatientIdAndLogDate(
-            Long patientId, LocalDate logDate
-    );
+    Optional<DailySymptomLog>
+        findByPatientIdAndLogDate(Long patientId, LocalDate logDate);
+
+    List<DailySymptomLog>
+        findByLogDateBetween(LocalDate startDate, LocalDate endDate);
 }
