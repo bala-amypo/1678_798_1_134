@@ -19,39 +19,37 @@ public class PatientProfileServiceImpl implements PatientProfileService {
     }
 
     @Override
-    public PatientProfile createProfile(PatientProfile profile) {
-        return repository.save(profile);
+    public PatientProfile createPatient(PatientProfile patient) {
+
+        repository.findByEmail(patient.getEmail()).ifPresent(p -> {
+            throw new IllegalArgumentException("Email already exists");
+        });
+
+        patient.setActive(true);
+        return repository.save(patient);
     }
 
     @Override
-    public PatientProfile updateProfile(Long id, PatientProfile profile) {
-        PatientProfile existing = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found"));
-
-        existing.setFullName(profile.getFullName());
-        existing.setAge(profile.getAge());
-        existing.setGender(profile.getGender());
-        existing.setSurgeryType(profile.getSurgeryType());
-        existing.setSurgeryDate(profile.getSurgeryDate());
-
-        return repository.save(existing);
-    }
-
-    @Override
-    public Optional<PatientProfile> getProfileById(Long id) {
+    public Optional<PatientProfile> getPatientById(Long id) {
         return repository.findById(id);
     }
 
     @Override
-    public List<PatientProfile> getAllProfiles() {
+    public List<PatientProfile> getAllPatients() {
         return repository.findAll();
     }
 
     @Override
-    public void deleteProfile(Long id) {
-        if (!repository.existsById(id)) {
-            throw new ResourceNotFoundException("Patient profile not found");
-        }
-        repository.deleteById(id);
+    public PatientProfile updatePatientStatus(Long id, boolean active) {
+        PatientProfile patient = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+        patient.setActive(active);
+        return repository.save(patient);
+    }
+
+    @Override
+    public Optional<PatientProfile> findByPatientId(String patientId) {
+        return repository.findByPatientId(patientId);
     }
 }
