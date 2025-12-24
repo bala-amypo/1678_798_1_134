@@ -8,14 +8,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JwtConfig {
 
-    @Value("${app.jwt.secret}")
-    private String jwtSecret;
-
-    @Value("${app.jwt.expiration}")
-    private long jwtExpiration;
-
     @Bean
-    public JwtTokenProvider jwtTokenProvider() {
-        return new JwtTokenProvider(jwtSecret, jwtExpiration);
+    public JwtTokenProvider jwtTokenProvider(
+            @Value("${app.jwt.secret}") String secret,
+            @Value("${app.jwt.expiration}") long expiration
+    ) {
+        return new JwtTokenProvider(secret, expiration);
     }
 }
