@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-@Service   // 🔴 THIS WAS MISSING
+@Service
 public class DailySymptomLogServiceImpl implements DailySymptomLogService {
 
     private final DailySymptomLogRepository dailySymptomLogRepository;
@@ -40,19 +40,24 @@ public class DailySymptomLogServiceImpl implements DailySymptomLogService {
 
     @Override
     public DailySymptomLog recordSymptomLog(DailySymptomLog log) {
+
+        // ❌ Future date validation (exact message required)
         if (log.getLogDate().isAfter(LocalDate.now())) {
             throw new IllegalArgumentException("future date");
         }
 
+        // ❌ Patient must exist
         patientProfileRepository.findById(log.getPatientId())
                 .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
+        // ❌ Duplicate log check (same patient, same date)
         dailySymptomLogRepository
                 .findByPatientIdAndLogDate(log.getPatientId(), log.getLogDate())
                 .ifPresent(existing -> {
                     throw new IllegalArgumentException("Duplicate log");
                 });
 
+        // 🔹 Save log (alert generation logic can be expanded later)
         return dailySymptomLogRepository.save(log);
     }
 
@@ -68,6 +73,7 @@ public class DailySymptomLogServiceImpl implements DailySymptomLogService {
 
     @Override
     public DailySymptomLog updateSymptomLog(Long id, DailySymptomLog updated) {
+
         DailySymptomLog existing = dailySymptomLogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Log not found"));
 
@@ -77,5 +83,10 @@ public class DailySymptomLogServiceImpl implements DailySymptomLogService {
         existing.setAdditionalNotes(updated.getAdditionalNotes());
 
         return dailySymptomLogRepository.save(existing);
+    }
+
+    @Override
+    public List<DailySymptomLog> getAllLogs() {
+        return dailySymptomLogRepository.findAll();
     }
 }
