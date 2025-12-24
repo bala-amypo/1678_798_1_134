@@ -13,7 +13,7 @@ public class JwtTokenProvider {
     private final String secret;
     private final long validityInMs;
 
-    // REQUIRED by test suite
+    // ⚠️ REQUIRED BY TEST SUITE — DO NOT CHANGE
     public JwtTokenProvider(String secret, long validityInMs) {
         this.secret = secret;
         this.validityInMs = validityInMs;
@@ -35,28 +35,28 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public Long getUserIdFromToken(String token) {
-        return ((Number) getAllClaims(token).get("userId")).longValue();
+    public String getEmailFromToken(String token) {
+        return getClaims(token).getSubject();
     }
 
-    public String getEmailFromToken(String token) {
-        return getAllClaims(token).getSubject();
+    public Long getUserIdFromToken(String token) {
+        return ((Number) getClaims(token).get("userId")).longValue();
     }
 
     public UserRole getRoleFromToken(String token) {
-        return UserRole.valueOf((String) getAllClaims(token).get("role"));
+        return UserRole.valueOf((String) getClaims(token).get("role"));
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+            getClaims(token);
             return true;
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return false;
         }
     }
 
-    private Claims getAllClaims(String token) {
+    private Claims getClaims(String token) {
         return Jwts.parser()
                 .setSigningKey(secret)
                 .parseClaimsJws(token)
