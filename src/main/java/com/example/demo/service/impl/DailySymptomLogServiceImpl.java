@@ -1,57 +1,66 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.model.ClinicalAlertRecord;
-import com.example.demo.model.DailySymptomLog;
-import com.example.demo.repository.ClinicalAlertRecordRepository;
-import com.example.demo.repository.DailySymptomLogRepository;
-import com.example.demo.service.DailySymptomLogService;
-import org.springframework.stereotype.Service;
+import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.model.*;
+import com.example.demo.repository.*;
+import com.example.demo.service.*;
+import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
-@Service
+@RequiredArgsConstructor
 public class DailySymptomLogServiceImpl implements DailySymptomLogService {
 
-    private final DailySymptomLogRepository dailySymptomLogRepository;
-    private final ClinicalAlertRecordRepository clinicalAlertRecordRepository;
-
-    public DailySymptomLogServiceImpl(
-            DailySymptomLogRepository dailySymptomLogRepository,
-            ClinicalAlertRecordRepository clinicalAlertRecordRepository
-    ) {
-        this.dailySymptomLogRepository = dailySymptomLogRepository;
-        this.clinicalAlertRecordRepository = clinicalAlertRecordRepository;
-    }
+    private final DailySymptomLogRepository logRepository;
+    private final PatientProfileRepository patientRepository;
+    private final RecoveryCurveService recoveryCurveService;
+    private final DeviationRuleService deviationRuleService;
+    private final ClinicalAlertService clinicalAlertService;
 
     @Override
     public DailySymptomLog recordSymptomLog(DailySymptomLog log) {
 
-        DailySymptomLog savedLog = dailySymptomLogRepository.save(log);
+        PatientProfile patient = patientRepository.findById(log.getPatientId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Patient not found"));
 
-        // Example alert creation (used by tests)
-        ClinicalAlertRecord alert = ClinicalAlertRecord.builder()
-                .patientId(log.getPatientId())
-                .message("Symptom log recorded")
-                .severity("LOW")
-                .alertType("INFO")
-                .resolved(false)
-                .createdAt(LocalDateTime.now())
-                .build();
+        logRepository.findByPatientIdAndLogDate(
+                log.getPatientId(),
+                log.getLogDate() != null ? log.getLogDate() : LocalDate.now()
+        ).ifPresent(existing -> {
+            throw new IllegalArgumentException("Duplicate daily log");
+        });
 
-        clinicalAlertRecordRepository.save(alert);
-
-        return savedLog;
+        return logRepository.save(log);
     }
 
     @Override
-    public DailySymptomLog updateSymptomLog(long id, DailySymptomLog log) {
-        log.setId(id);
-        return dailySymptomLogRepository.save(log);
+    public DailySymptomLog updateSymptomLog(Long id, DailySymptomLog updated) {
+
+        DailySymptomLog existing = logRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Log not found"));
+
+        patientRepository.findById(existing.getPatientId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Patient not found"));
+
+        existing.setPainLevel(updated.getPainLevel());
+        existing.setMobilityLevel(updated.getMobilityLevel());
+        existing.setFatigueLevel(updated.getFatigueLevel());
+        existing.setAdditionalNotes(updated.getAdditionalNotes());
+
+        return logRepository.save(existing);
     }
 
     @Override
-    public List<DailySymptomLog> getLogsByPatient(long patientId) {
-        return dailySymptomLogRepository.findByPatientId(patientId);
+    public List<DailySymptomLog> getLogsByPatient(Long patientId) {
+
+        patientRepository.findById(patientId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Patient not found"));
+
+        return logRepository.findByPatientId(patientId);
     }
 }
