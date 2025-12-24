@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import com.example.demo.model.ClinicalAlertRecord;
 import com.example.demo.service.ClinicalAlertService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,40 +10,35 @@ import java.util.List;
 @RequestMapping("/api/alerts")
 public class ClinicalAlertController {
 
-    private final ClinicalAlertService service;
+    private final ClinicalAlertService clinicalAlertService;
 
-    public ClinicalAlertController(ClinicalAlertService service) {
-        this.service = service;
+    // 🔴 REQUIRED constructor
+    public ClinicalAlertController(ClinicalAlertService clinicalAlertService) {
+        this.clinicalAlertService = clinicalAlertService;
     }
 
     @PostMapping
-    public ResponseEntity<ClinicalAlertRecord> create(
-            @RequestBody ClinicalAlertRecord alert) {
-        return ResponseEntity.ok(service.createAlert(alert));
+    public ClinicalAlertRecord create(@RequestBody ClinicalAlertRecord alert) {
+        return clinicalAlertService.createAlert(alert);
     }
 
     @PutMapping("/{id}/resolve")
-    public ResponseEntity<ClinicalAlertRecord> resolve(
-            @PathVariable Long id) {
-        return ResponseEntity.ok(service.resolveAlert(id));
+    public ClinicalAlertRecord resolve(@PathVariable Long id) {
+        return clinicalAlertService.resolveAlert(id);
     }
 
     @GetMapping("/patient/{patientId}")
-    public ResponseEntity<List<ClinicalAlertRecord>> getByPatient(
-            @PathVariable Long patientId) {
-        return ResponseEntity.ok(service.getAlertsByPatient(patientId));
+    public List<ClinicalAlertRecord> getByPatient(@PathVariable Long patientId) {
+        return clinicalAlertService.getAlertsByPatient(patientId);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClinicalAlertRecord> getById(
-            @PathVariable Long id) {
-        return service.getAlertById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ClinicalAlertRecord getById(@PathVariable Long id) {
+        return clinicalAlertService.getAlertById(id).orElse(null);
     }
 
     @GetMapping
-    public ResponseEntity<List<ClinicalAlertRecord>> getAll() {
-        return ResponseEntity.ok(service.getAllAlerts());
+    public List<ClinicalAlertRecord> getAll() {
+        return clinicalAlertService.getAllAlerts();
     }
 }

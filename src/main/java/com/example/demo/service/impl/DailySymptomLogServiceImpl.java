@@ -1,127 +1,81 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.model.*;
-import com.example.demo.repository.*;
-import com.example.demo.service.*;
+import com.example.demo.model.DailySymptomLog;
+import com.example.demo.repository.DailySymptomLogRepository;
+import com.example.demo.repository.PatientProfileRepository;
+import com.example.demo.service.ClinicalAlertService;
+import com.example.demo.service.DailySymptomLogService;
+import com.example.demo.service.DeviationRuleService;
+import com.example.demo.service.RecoveryCurveService;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
-public class DailySymptomLogServiceImpl
-        implements DailySymptomLogService {
+@Service   // 🔴 THIS WAS MISSING
+public class DailySymptomLogServiceImpl implements DailySymptomLogService {
 
-    private final DailySymptomLogRepository logRepo;
-    private final PatientProfileRepository patientRepo;
+    private final DailySymptomLogRepository dailySymptomLogRepository;
+    private final PatientProfileRepository patientProfileRepository;
     private final RecoveryCurveService recoveryCurveService;
     private final DeviationRuleService deviationRuleService;
-    private final ClinicalAlertService alertService;
+    private final ClinicalAlertService clinicalAlertService;
 
-    // REQUIRED constructor (TestNG)
+    // 🔴 REQUIRED constructor (no @Autowired)
     public DailySymptomLogServiceImpl(
-            DailySymptomLogRepository logRepo,
-            PatientProfileRepository patientRepo,
+            DailySymptomLogRepository dailySymptomLogRepository,
+            PatientProfileRepository patientProfileRepository,
             RecoveryCurveService recoveryCurveService,
             DeviationRuleService deviationRuleService,
-            ClinicalAlertService alertService) {
-
-        this.logRepo = logRepo;
-        this.patientRepo = patientRepo;
+            ClinicalAlertService clinicalAlertService
+    ) {
+        this.dailySymptomLogRepository = dailySymptomLogRepository;
+        this.patientProfileRepository = patientProfileRepository;
         this.recoveryCurveService = recoveryCurveService;
         this.deviationRuleService = deviationRuleService;
-        this.alertService = alertService;
+        this.clinicalAlertService = clinicalAlertService;
     }
 
     @Override
     public DailySymptomLog recordSymptomLog(DailySymptomLog log) {
-
-        PatientProfile patient = patientRepo
-                .findById(log.getPatientId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Patient not found"));
-
         if (log.getLogDate().isAfter(LocalDate.now())) {
             throw new IllegalArgumentException("future date");
         }
 
-        if (logRepo.findByPatientIdAndLogDate(
-                log.getPatientId(), log.getLogDate()).isPresent()) {
-            throw new IllegalArgumentException("Duplicate log");
-        }
+        patientProfileRepository.findById(log.getPatientId())
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
-        DailySymptomLog saved = logRepo.save(log);
-
-        long day =
-                ChronoUnit.DAYS.between(
-                        patient.getCreatedAt().toLocalDate(),
-                        log.getLogDate());
-
-        recoveryCurveService
-                .getCurveByDayAndSurgery(
-                        patient.getSurgeryType(),
-                        (int) day)
-                .ifPresent(curve -> {
-
-                    deviationRuleService.getActiveRules()
-                            .forEach(rule -> {
-
-                                if (!rule.getParameter().equalsIgnoreCase("PAIN")) return;
-
-                                int deviation =
-                                        saved.getPainLevel()
-                                                - curve.getExpectedPainLevel();
-
-                                if (deviation > rule.getThreshold()) {
-
-                                    alertService.createAlert(
-                                            ClinicalAlertRecord.builder()
-                                                    .patientId(saved.getPatientId())
-                                                    .logId(saved.getId())
-                                                    .alertType("PAIN_SPIKE")
-                                                    .severity(rule.getSeverity())
-                                                    .message("Deviation detected")
-                                                    .resolved(false)
-                                                    .build()
-                                    );
-                                }
-                            });
+        dailySymptomLogRepository
+                .findByPatientIdAndLogDate(log.getPatientId(), log.getLogDate())
+                .ifPresent(existing -> {
+                    throw new IllegalArgumentException("Duplicate log");
                 });
 
-        return saved;
+        return dailySymptomLogRepository.save(log);
     }
 
     @Override
     public List<DailySymptomLog> getLogsByPatient(Long patientId) {
-        patientRepo.findById(patientId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Patient not found"));
-        return logRepo.findByPatientId(patientId);
+        return dailySymptomLogRepository.findByPatientId(patientId);
     }
 
     @Override
     public Optional<DailySymptomLog> getLogById(Long id) {
-        return logRepo.findById(id);
+        return dailySymptomLogRepository.findById(id);
     }
 
     @Override
     public DailySymptomLog updateSymptomLog(Long id, DailySymptomLog updated) {
-
-        DailySymptomLog existing = logRepo.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Log not found"));
+        DailySymptomLog existing = dailySymptomLogRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Log not found"));
 
         existing.setPainLevel(updated.getPainLevel());
         existing.setMobilityLevel(updated.getMobilityLevel());
         existing.setFatigueLevel(updated.getFatigueLevel());
         existing.setAdditionalNotes(updated.getAdditionalNotes());
 
-        return logRepo.save(existing);
-    }
-
-    @Override
-    public List<DailySymptomLog> getAllLogs() {
-        return logRepo.findAll();
+        return dailySymptomLogRepository.save(existing);
     }
 }
