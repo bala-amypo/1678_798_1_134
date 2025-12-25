@@ -1,78 +1,166 @@
 package com.example.demo.model;
 
-import lombok.*;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
-@Table(name = "daily_symptom_logs", 
-       uniqueConstraints = @UniqueConstraint(columnNames = {"patient_id", "log_date"}))
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class DailySymptomLog {
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @Column(name = "patient_id", nullable = false)
     private Long patientId;
-    
-    @Column(name = "log_date", nullable = false)
     private LocalDate logDate;
-    
-    @Column(name = "pain_level", nullable = false)
-    @Builder.Default
-    private Integer painLevel = 0; // 0-10 scale
-    
-    @Column(name = "mobility_level", nullable = false)
-    @Builder.Default
-    private Integer mobilityLevel = 0; // 0-10 scale
-    
-    @Column(name = "fatigue_level", nullable = false)
-    @Builder.Default
-    private Integer fatigueLevel = 0; // 0-10 scale
-    
-    @Column(name = "medication_taken")
-    @Builder.Default
-    private Boolean medicationTaken = false;
-    
-    @Column(name = "medication_details", length = 500)
-    private String medicationDetails;
-    
-    @Column(name = "therapy_completed")
-    @Builder.Default
-    private Boolean therapyCompleted = false;
-    
-    @Column(name = "therapy_details", length = 500)
-    private String therapyDetails;
-    
-    @Column(name = "additional_notes", length = 1000)
+    private Integer painLevel;
+    private Integer mobilityLevel;
+    private Integer fatigueLevel;
     private String additionalNotes;
-    
-    @Column(name = "recorded_by")
-    private Long recordedBy; // User ID of the clinician/assistant
-    
-    @Column(name = "recorded_at")
-    @Builder.Default
-    private LocalDate recordedAt = LocalDate.now();
-    
-    // Helper method to calculate overall wellness score
-    public Double getWellnessScore() {
-        // Reverse pain and fatigue for positive score (lower is better)
-        double normalizedPain = (10 - painLevel) / 10.0;
-        double normalizedMobility = mobilityLevel / 10.0;
-        double normalizedFatigue = (10 - fatigueLevel) / 10.0;
-        
-        // Weighted average (pain 40%, mobility 40%, fatigue 20%)
-        return (normalizedPain * 0.4) + (normalizedMobility * 0.4) + (normalizedFatigue * 0.2);
+
+    public DailySymptomLog() {
     }
-    
-    // Helper method to check if log is for today
-    public boolean isToday() {
-        return logDate.equals(LocalDate.now());
+
+    public DailySymptomLog(Long id, Long patientId, LocalDate logDate, Integer painLevel, Integer mobilityLevel, Integer fatigueLevel, String additionalNotes) {
+        this.id = id;
+        this.patientId = patientId;
+        this.logDate = logDate;
+        this.painLevel = painLevel;
+        this.mobilityLevel = mobilityLevel;
+        this.fatigueLevel = fatigueLevel;
+        this.additionalNotes = additionalNotes;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
+    }
+
+    public LocalDate getLogDate() {
+        return logDate;
+    }
+
+    public void setLogDate(LocalDate logDate) {
+        this.logDate = logDate;
+    }
+
+    public Integer getPainLevel() {
+        return painLevel;
+    }
+
+    public void setPainLevel(Integer painLevel) {
+        this.painLevel = painLevel;
+    }
+
+    public Integer getMobilityLevel() {
+        return mobilityLevel;
+    }
+
+    public void setMobilityLevel(Integer mobilityLevel) {
+        this.mobilityLevel = mobilityLevel;
+    }
+
+    public Integer getFatigueLevel() {
+        return fatigueLevel;
+    }
+
+    public void setFatigueLevel(Integer fatigueLevel) {
+        this.fatigueLevel = fatigueLevel;
+    }
+
+    public String getAdditionalNotes() {
+        return additionalNotes;
+    }
+
+    public void setAdditionalNotes(String additionalNotes) {
+        this.additionalNotes = additionalNotes;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DailySymptomLog that = (DailySymptomLog) o;
+        return Objects.equals(id, that.id) && Objects.equals(patientId, that.patientId) && Objects.equals(logDate, that.logDate) && Objects.equals(painLevel, that.painLevel) && Objects.equals(mobilityLevel, that.mobilityLevel) && Objects.equals(fatigueLevel, that.fatigueLevel) && Objects.equals(additionalNotes, that.additionalNotes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, patientId, logDate, painLevel, mobilityLevel, fatigueLevel, additionalNotes);
+    }
+
+    @Override
+    public String toString() {
+        return "DailySymptomLog{" +
+                "id=" + id +
+                ", patientId=" + patientId +
+                ", logDate=" + logDate +
+                ", painLevel=" + painLevel +
+                ", mobilityLevel=" + mobilityLevel +
+                ", fatigueLevel=" + fatigueLevel +
+                ", additionalNotes='" + additionalNotes + '\'' +
+                '}';
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private Long id;
+        private Long patientId;
+        private LocalDate logDate;
+        private Integer painLevel;
+        private Integer mobilityLevel;
+        private Integer fatigueLevel;
+        private String additionalNotes;
+
+        public Builder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder patientId(Long patientId) {
+            this.patientId = patientId;
+            return this;
+        }
+
+        public Builder logDate(LocalDate logDate) {
+            this.logDate = logDate;
+            return this;
+        }
+
+        public Builder painLevel(Integer painLevel) {
+            this.painLevel = painLevel;
+            return this;
+        }
+
+        public Builder mobilityLevel(Integer mobilityLevel) {
+            this.mobilityLevel = mobilityLevel;
+            return this;
+        }
+
+        public Builder fatigueLevel(Integer fatigueLevel) {
+            this.fatigueLevel = fatigueLevel;
+            return this;
+        }
+
+        public Builder additionalNotes(String additionalNotes) {
+            this.additionalNotes = additionalNotes;
+            return this;
+        }
+
+        public DailySymptomLog build() {
+            return new DailySymptomLog(id, patientId, logDate, painLevel, mobilityLevel, fatigueLevel, additionalNotes);
+        }
     }
 }

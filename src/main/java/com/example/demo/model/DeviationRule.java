@@ -1,111 +1,148 @@
 package com.example.demo.model;
 
-import lombok.*;
-import javax.persistence.*;
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
+import java.util.Objects;
 
 @Entity
-@Table(name = "deviation_rules", 
-       uniqueConstraints = @UniqueConstraint(columnNames = "rule_code"))
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class DeviationRule {
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @Column(name = "rule_code", nullable = false, unique = true, length = 50)
     private String ruleCode;
-    
-    @Column(name = "parameter", nullable = false, length = 20)
-    private String parameter; // PAIN, MOBILITY, FATIGUE, WELLNESS_SCORE
-    
-    @Column(nullable = false)
+    private String parameter;
     private Integer threshold;
-    
-    @Column(name = "operator", nullable = false, length = 20)
-    @Builder.Default
-    private String operator = "GREATER_THAN"; // GREATER_THAN, LESS_THAN, EQUALS, BETWEEN
-    
-    @Column(name = "max_threshold")
-    private Integer maxThreshold; // For BETWEEN operator
-    
-    @Column(name = "severity", nullable = false, length = 20)
-    @Builder.Default
-    private String severity = "MEDIUM"; // LOW, MEDIUM, HIGH, CRITICAL
-    
-    @Column(name = "alert_message_template", length = 500)
-    private String alertMessageTemplate;
-    
-    @Column(length = 1000)
-    private String description;
-    
-    @Column(name = "is_active")
-    @Builder.Default
-    private Boolean active = true;
-    
-    @Column(name = "notification_channels", length = 100)
-    @Builder.Default
-    private String notificationChannels = "IN_APP"; // IN_APP, EMAIL, SMS, ALL
-    
-    @Column(name = "action_required")
-    @Builder.Default
-    private Boolean actionRequired = false;
-    
-    @Column(name = "action_instructions", length = 1000)
-    private String actionInstructions;
-    
-    @Column(name = "created_at")
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-    
-    @Column(name = "created_by")
-    private Long createdBy;
-    
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+    private String severity;
+    private Boolean active;
+
+    public DeviationRule() {
     }
-    
-    // Helper method to evaluate rule
-    public boolean evaluate(Integer value) {
-        switch (operator) {
-            case "GREATER_THAN":
-                return value > threshold;
-            case "LESS_THAN":
-                return value < threshold;
-            case "EQUALS":
-                return value.equals(threshold);
-            case "BETWEEN":
-                return maxThreshold != null && value >= threshold && value <= maxThreshold;
-            default:
-                return false;
+
+    public DeviationRule(Long id, String ruleCode, String parameter, Integer threshold, String severity, Boolean active) {
+        this.id = id;
+        this.ruleCode = ruleCode;
+        this.parameter = parameter;
+        this.threshold = threshold;
+        this.severity = severity;
+        this.active = active;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getRuleCode() {
+        return ruleCode;
+    }
+
+    public void setRuleCode(String ruleCode) {
+        this.ruleCode = ruleCode;
+    }
+
+    public String getParameter() {
+        return parameter;
+    }
+
+    public void setParameter(String parameter) {
+        this.parameter = parameter;
+    }
+
+    public Integer getThreshold() {
+        return threshold;
+    }
+
+    public void setThreshold(Integer threshold) {
+        this.threshold = threshold;
+    }
+
+    public String getSeverity() {
+        return severity;
+    }
+
+    public void setSeverity(String severity) {
+        this.severity = severity;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DeviationRule that = (DeviationRule) o;
+        return Objects.equals(id, that.id) && Objects.equals(ruleCode, that.ruleCode) && Objects.equals(parameter, that.parameter) && Objects.equals(threshold, that.threshold) && Objects.equals(severity, that.severity) && Objects.equals(active, that.active);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, ruleCode, parameter, threshold, severity, active);
+    }
+
+    @Override
+    public String toString() {
+        return "DeviationRule{" +
+                "id=" + id +
+                ", ruleCode='" + ruleCode + '\'' +
+                ", parameter='" + parameter + '\'' +
+                ", threshold=" + threshold +
+                ", severity='" + severity + '\'' +
+                ", active=" + active +
+                '}';
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private Long id;
+        private String ruleCode;
+        private String parameter;
+        private Integer threshold;
+        private String severity;
+        private Boolean active;
+
+        public Builder id(Long id) {
+            this.id = id;
+            return this;
         }
-    }
-    
-    // Helper method to evaluate rule with two values (for ranges)
-    public boolean evaluate(Integer actualValue, Integer expectedValue) {
-        int deviation = Math.abs(actualValue - expectedValue);
-        return evaluate(deviation);
-    }
-    
-    // Helper method to generate alert message
-    public String generateAlertMessage(Integer actualValue, Integer expectedValue) {
-        if (alertMessageTemplate != null) {
-            return alertMessageTemplate
-                    .replace("{actual}", String.valueOf(actualValue))
-                    .replace("{expected}", String.valueOf(expectedValue))
-                    .replace("{parameter}", parameter);
+
+        public Builder ruleCode(String ruleCode) {
+            this.ruleCode = ruleCode;
+            return this;
         }
-        
-        return String.format("%s deviation detected. Actual: %d, Expected: %d. Severity: %s",
-                parameter, actualValue, expectedValue, severity);
+
+        public Builder parameter(String parameter) {
+            this.parameter = parameter;
+            return this;
+        }
+
+        public Builder threshold(Integer threshold) {
+            this.threshold = threshold;
+            return this;
+        }
+
+        public Builder severity(String severity) {
+            this.severity = severity;
+            return this;
+        }
+
+        public Builder active(Boolean active) {
+            this.active = active;
+            return this;
+        }
+
+        public DeviationRule build() {
+            return new DeviationRule(id, ruleCode, parameter, threshold, severity, active);
+        }
     }
 }

@@ -1,114 +1,165 @@
 package com.example.demo.model;
 
-import lombok.*;
-import javax.persistence.*;
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
+import java.util.Objects;
 
 @Entity
-@Table(name = "clinical_alert_records")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class ClinicalAlertRecord {
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @Column(name = "patient_id", nullable = false)
     private Long patientId;
-    
-    @Column(name = "log_id")
     private Long logId;
-    
-    @Column(name = "rule_id")
-    private Long ruleId;
-    
-    @Column(name = "alert_type", nullable = false, length = 50)
-    private String alertType; // PAIN_SPIKE, MOBILITY_DROP, FATIGUE_SPIKE, WELLNESS_DEVIATION
-    
-    @Column(name = "severity", nullable = false, length = 20)
-    private String severity; // LOW, MEDIUM, HIGH, CRITICAL
-    
-    @Column(name = "parameter", nullable = false, length = 20)
-    private String parameter; // PAIN, MOBILITY, FATIGUE, WELLNESS_SCORE
-    
-    @Column(nullable = false)
-    private Integer actualValue;
-    
-    @Column(name = "expected_value")
-    private Integer expectedValue;
-    
-    @Column(name = "deviation_amount")
-    private Integer deviationAmount;
-    
-    @Column(length = 1000)
+    private String alertType;
+    private String severity;
     private String message;
-    
-    @Column(name = "is_resolved")
-    @Builder.Default
-    private Boolean resolved = false;
-    
-    @Column(name = "resolved_by")
-    private Long resolvedBy;
-    
-    @Column(name = "resolution_notes", length = 1000)
-    private String resolutionNotes;
-    
-    @Column(name = "acknowledged")
-    @Builder.Default
-    private Boolean acknowledged = false;
-    
-    @Column(name = "acknowledged_by")
-    private Long acknowledgedBy;
-    
-    @Column(name = "acknowledged_at")
-    private LocalDateTime acknowledgedAt;
-    
-    @Column(name = "created_at")
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
-    
-    @Column(name = "resolved_at")
-    private LocalDateTime resolvedAt;
-    
-    @Column(name = "notification_sent")
-    @Builder.Default
-    private Boolean notificationSent = false;
-    
-    @Column(name = "notification_channels", length = 100)
-    private String notificationChannels;
-    
-    @Column(name = "escalation_level")
-    @Builder.Default
-    private Integer escalationLevel = 1;
-    
-    // Helper methods
-    public void acknowledge(Long userId) {
-        this.acknowledged = true;
-        this.acknowledgedBy = userId;
-        this.acknowledgedAt = LocalDateTime.now();
+    private Boolean resolved;
+
+    public ClinicalAlertRecord() {
     }
-    
-    public void resolve(Long userId, String notes) {
-        this.resolved = true;
-        this.resolvedBy = userId;
-        this.resolvedAt = LocalDateTime.now();
-        this.resolutionNotes = notes;
+
+    public ClinicalAlertRecord(Long id, Long patientId, Long logId, String alertType, String severity, String message, Boolean resolved) {
+        this.id = id;
+        this.patientId = patientId;
+        this.logId = logId;
+        this.alertType = alertType;
+        this.severity = severity;
+        this.message = message;
+        this.resolved = resolved;
     }
-    
-    public boolean isCritical() {
-        return "CRITICAL".equals(severity);
+
+    public Long getId() {
+        return id;
     }
-    
-    public boolean requiresImmediateAttention() {
-        return isCritical() || (!acknowledged && "HIGH".equals(severity));
+
+    public void setId(Long id) {
+        this.id = id;
     }
-    
-    public Long getAgeInHours() {
-        if (createdAt == null) return 0L;
-        return java.time.temporal.ChronoUnit.HOURS.between(createdAt, LocalDateTime.now());
+
+    public Long getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
+    }
+
+    public Long getLogId() {
+        return logId;
+    }
+
+    public void setLogId(Long logId) {
+        this.logId = logId;
+    }
+
+    public String getAlertType() {
+        return alertType;
+    }
+
+    public void setAlertType(String alertType) {
+        this.alertType = alertType;
+    }
+
+    public String getSeverity() {
+        return severity;
+    }
+
+    public void setSeverity(String severity) {
+        this.severity = severity;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public Boolean getResolved() {
+        return resolved;
+    }
+
+    public void setResolved(Boolean resolved) {
+        this.resolved = resolved;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClinicalAlertRecord that = (ClinicalAlertRecord) o;
+        return Objects.equals(id, that.id) && Objects.equals(patientId, that.patientId) && Objects.equals(logId, that.logId) && Objects.equals(alertType, that.alertType) && Objects.equals(severity, that.severity) && Objects.equals(message, that.message) && Objects.equals(resolved, that.resolved);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, patientId, logId, alertType, severity, message, resolved);
+    }
+
+    @Override
+    public String toString() {
+        return "ClinicalAlertRecord{" +
+                "id=" + id +
+                ", patientId=" + patientId +
+                ", logId=" + logId +
+                ", alertType='" + alertType + '\'' +
+                ", severity='" + severity + '\'' +
+                ", message='" + message + '\'' +
+                ", resolved=" + resolved +
+                '}';
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private Long id;
+        private Long patientId;
+        private Long logId;
+        private String alertType;
+        private String severity;
+        private String message;
+        private Boolean resolved;
+
+        public Builder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder patientId(Long patientId) {
+            this.patientId = patientId;
+            return this;
+        }
+
+        public Builder logId(Long logId) {
+            this.logId = logId;
+            return this;
+        }
+
+        public Builder alertType(String alertType) {
+            this.alertType = alertType;
+            return this;
+        }
+
+        public Builder severity(String severity) {
+            this.severity = severity;
+            return this;
+        }
+
+        public Builder message(String message) {
+            this.message = message;
+            return this;
+        }
+
+        public Builder resolved(Boolean resolved) {
+            this.resolved = resolved;
+            return this;
+        }
+
+        public ClinicalAlertRecord build() {
+            return new ClinicalAlertRecord(id, patientId, logId, alertType, severity, message, resolved);
+        }
     }
 }
