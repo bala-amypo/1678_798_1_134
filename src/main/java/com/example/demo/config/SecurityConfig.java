@@ -35,7 +35,7 @@ public class SecurityConfig {
             );
         
         // Allow H2 console frames
-        http.headers(headers -> headers.frameOptions().disable());
+        http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));
         
         return http.build();
     }
