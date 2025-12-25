@@ -5,16 +5,16 @@ import com.example.demo.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -25,97 +25,91 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CustomUserDetailsService customUserDetailsService;
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService)
+            .passwordEncoder(passwordEncoder());
+    }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
         http
             .cors().and()
             .csrf().disable()
-            .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
             .authorizeRequests()
-                // Public endpoints
-                .antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                .antMatchers("/h2-console/**").permitAll()
-                .antMatchers("/api/public/**").permitAll()
-                
-                // Role-based access control
-                .antMatchers("/api/admin/**").hasRole("ADMIN")
-                .antMatchers("/api/clinician/**").hasAnyRole("CLINICIAN", "ADMIN")
-                .antMatchers("/api/assistant/**").hasAnyRole("HEALTH_ASSISTANT", "CLINICIAN", "ADMIN")
-                
-                // Patient endpoints - require authentication
-                .antMatchers("/api/patients/**").authenticated()
-                .antMatchers("/api/logs/**").authenticated()
-                .antMatchers("/api/alerts/**").authenticated()
-                .antMatchers("/api/rules/**").authenticated()
-                .antMatchers("/api/curves/**").authenticated()
-                
-                // All other requests require authentication
-                .anyRequest().authenticated()
-                .and()
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            // Public endpoints
+            .antMatchers("/api/auth/**").permitAll()
+            .antMatchers("/api/public/**").permitAll()
+            .antMatchers("/h2-console/**").permitAll()
             
-            // Headers for H2 console
-            .headers().frameOptions().sameOrigin();
+            // Swagger documentation endpoints
+            .antMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
+            
+            // Patient endpoints - authenticated
+            .antMatchers(HttpMethod.GET, "/api/patients/**").hasAnyRole("CLINICIAN", "ADMIN", "HEALTH_ASSISTANT")
+            .antMatchers(HttpMethod.POST, "/api/patients/**").hasAnyRole("CLINICIAN", "ADMIN")
+            .antMatchers(HttpMethod.PUT, "/api/patients/**").hasAnyRole("CLINICIAN", "ADMIN")
+            .antMatchers(HttpMethod.DELETE, "/api/patients/**").hasRole("ADMIN")
+            
+            // Symptom log endpoints
+            .antMatchers("/api/symptoms/**").hasAnyRole("CLINICIAN", "ADMIN", "HEALTH_ASSISTANT")
+            
+            // Recovery curve endpoints
+            .antMatchers(HttpMethod.GET, "/api/recovery-curves/**").hasAnyRole("CLINICIAN", "ADMIN", "HEALTH_ASSISTANT")
+            .antMatchers(HttpMethod.POST, "/api/recovery-curves/**").hasAnyRole("ADMIN")
+            
+            // Deviation rules endpoints
+            .antMatchers(HttpMethod.GET, "/api/rules/**").hasAnyRole("CLINICIAN", "ADMIN")
+            .antMatchers(HttpMethod.POST, "/api/rules/**").hasRole("ADMIN")
+            .antMatchers(HttpMethod.PUT, "/api/rules/**").hasRole("ADMIN")
+            .antMatchers(HttpMethod.DELETE, "/api/rules/**").hasRole("ADMIN")
+            
+            // Alert endpoints
+            .antMatchers("/api/alerts/**").hasAnyRole("CLINICIAN", "ADMIN")
+            
+            // User management
+            .antMatchers("/api/users/**").hasRole("ADMIN")
+            
+            // All other endpoints require authentication
+            .anyRequest().authenticated()
+            .and()
+            .headers().frameOptions().disable(); // For H2 console
 
-        return http.build();
+        // Add JWT filter
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:3000",  // React app
-            "http://localhost:4200",  // Angular app
-            "http://localhost:8080"   // The app itself
-        ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList(
-            "Authorization", 
-            "Content-Type", 
-            "X-Requested-With", 
-            "Accept", 
-            "Origin",
-            "Access-Control-Request-Method",
-            "Access-Control-Request-Headers"
-        ));
-        configuration.setExposedHeaders(Arrays.asList(
-            "Access-Control-Allow-Origin", 
-            "Access-Control-Allow-Credentials",
-            "Authorization"
-        ));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:8080"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Auth-Token"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
-
+        
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
-    }
-
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(customUserDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12); // Stronger encryption
     }
 }
