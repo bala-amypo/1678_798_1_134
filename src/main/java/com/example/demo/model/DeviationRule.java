@@ -12,7 +12,7 @@ public class DeviationRule {
     private String parameter;
     private Integer threshold;
     private String severity;
-    private Boolean active;
+    private Boolean active = true;
 
     public DeviationRule() {
     }

@@ -13,7 +13,7 @@ public class ClinicalAlertRecord {
     private String alertType;
     private String severity;
     private String message;
-    private Boolean resolved;
+    private Boolean resolved = false;
 
     public ClinicalAlertRecord() {
     }
