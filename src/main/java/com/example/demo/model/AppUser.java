@@ -1,78 +1,61 @@
 package com.example.demo.model;
 
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
 
 @Entity
-@Table(name = "app_users", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "email")
-})
+@Table(name = "app_users", 
+       uniqueConstraints = @UniqueConstraint(columnNames = "email"))
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
-public class AppUser implements UserDetails {
+@Builder
+public class AppUser {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String email;
     
     @Column(nullable = false)
     private String password;
     
+    @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
     
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private UserRole role;
     
-    @CreatedDate
-    private LocalDateTime createdAt;
+    @Column(length = 20)
+    private String phoneNumber;
     
-    @LastModifiedDate
+    @Column(length = 100)
+    private String specialization;
+    
+    @Column(name = "license_number", length = 50)
+    private String licenseNumber;
+    
+    @Column(name = "is_active")
+    @Builder.Default
+    private Boolean active = true;
+    
+    @Column(name = "created_at")
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
+    
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
-    }
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
     
-    @Override
-    public String getUsername() {
-        return email;
-    }
-    
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-    
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-    
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-    
-    @Override
-    public boolean isEnabled() {
-        return true;
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }
