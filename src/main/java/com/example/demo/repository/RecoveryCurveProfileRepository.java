@@ -1,10 +1,19 @@
-package com.example.demo.repository;
+package com.example.demo.controller;
 
-import com.example.demo.model.RecoveryCurveProfile;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
-import java.util.List;
+@RestController
+@RequestMapping("/api/recovery-curves")
+public class RecoveryCurveController {
 
-public interface RecoveryCurveProfileRepository extends JpaRepository<RecoveryCurveProfile, Long> {
-    List<RecoveryCurveProfile> findBySurgeryTypeOrderByDayNumberAsc(String surgeryType);
+    @GetMapping
+    public ResponseEntity<String> getAllCurves() {
+        return ResponseEntity.ok("Recovery curve service is running");
+    }
+
+    @GetMapping("/health")
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok("Recovery curve service health check");
+    }
 }
