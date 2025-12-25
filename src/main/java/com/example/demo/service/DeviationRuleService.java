@@ -7,10 +7,17 @@ import java.util.Optional;
 public interface DeviationRuleService {
     DeviationRule createRule(DeviationRule rule);
     List<DeviationRule> getAllRules();
-    Optional<DeviationRule> getRuleByCode(String ruleCode);
-    DeviationRule getRuleById(Long id);
-    DeviationRule updateRule(Long id, DeviationRule rule);
-    void deleteRule(Long id);
     List<DeviationRule> getActiveRules();
     List<DeviationRule> getRulesByParameter(String parameter);
+    List<DeviationRule> getHighPriorityRules();
+    Optional<DeviationRule> getRuleById(Long id);
+    Optional<DeviationRule> getRuleByCode(String ruleCode);
+    DeviationRule updateRule(Long id, DeviationRule rule);
+    DeviationRule updateRuleStatus(Long id, Boolean active);
+    void deleteRule(Long id);
+    List<DeviationRule> evaluateRules(Integer actualValue, Integer expectedValue, String parameter);
+    boolean checkRuleViolation(DeviationRule rule, Integer actualValue, Integer expectedValue);
+    Long countActiveRules();
+    List<DeviationRule> getRulesRequiringAction();
+    List<DeviationRule> searchRules(String keyword);
 }
