@@ -99,4 +99,150 @@ public class RecoveryCurveServiceImpl implements RecoveryCurveService {
         if (curve.getMaxMobilityLevel() != null) {
             existing.setMaxMobilityLevel(curve.getMaxMobilityLevel());
         }
-        if (curve.getMinFatigueLevel
+        if (curve.getMinFatigueLevel() != null) {
+            existing.setMinFatigueLevel(curve.getMinFatigueLevel());
+        }
+        if (curve.getMaxFatigueLevel() != null) {
+            existing.setMaxFatigueLevel(curve.getMaxFatigueLevel());
+        }
+        if (curve.getRecoveryPhase() != null) {
+            existing.setRecoveryPhase(curve.getRecoveryPhase());
+        }
+        if (curve.getRecommendations() != null) {
+            existing.setRecommendations(curve.getRecommendations());
+        }
+        if (curve.getExpectedActivities() != null) {
+            existing.setExpectedActivities(curve.getExpectedActivities());
+        }
+        if (curve.getWarningSigns() != null) {
+            existing.setWarningSigns(curve.getWarningSigns());
+        }
+        
+        RecoveryCurveProfile updated = recoveryCurveProfileRepository.save(existing);
+        log.info("Recovery curve entry updated successfully");
+        
+        return updated;
+    }
+    
+    @Override
+    public void deleteCurveEntry(Long id) {
+        log.info("Deleting recovery curve entry with ID: {}", id);
+        
+        RecoveryCurveProfile curve = recoveryCurveProfileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Recovery curve", "id", id));
+        
+        recoveryCurveProfileRepository.delete(curve);
+        log.info("Recovery curve entry deleted successfully");
+    }
+    
+    @Override
+    public List<String> getAllSurgeryTypes() {
+        log.debug("Fetching all surgery types");
+        return recoveryCurveProfileRepository.findDistinctSurgeryTypes();
+    }
+    
+    @Override
+    public Optional<Integer> getMaxDayForSurgeryType(String surgeryType) {
+        log.debug("Fetching max day number for surgery type: {}", surgeryType);
+        return recoveryCurveProfileRepository.findMaxDayNumberBySurgeryType(surgeryType);
+    }
+    
+    @Override
+    public Map<String, Object> calculateExpectedValues(String surgeryType, Integer dayNumber) {
+        log.debug("Calculating expected values for surgery: {}, day: {}", surgeryType, dayNumber);
+        
+        Optional<RecoveryCurveProfile> curve = getCurveEntry(surgeryType, dayNumber);
+        
+        if (curve.isEmpty()) {
+            return Map.of(
+                "found", false,
+                "message", String.format("No recovery curve found for surgery %s, day %d", surgeryType, dayNumber)
+            );
+        }
+        
+        RecoveryCurveProfile rc = curve.get();
+        
+        return Map.of(
+            "found", true,
+            "surgeryType", rc.getSurgeryType(),
+            "dayNumber", rc.getDayNumber(),
+            "expectedPainLevel", rc.getExpectedPainLevel(),
+            "expectedMobilityLevel", rc.getExpectedMobilityLevel(),
+            "expectedFatigueLevel", rc.getExpectedFatigueLevel(),
+            "recoveryPhase", rc.getRecoveryPhase(),
+            "wellnessScore", rc.getExpectedWellnessScore()
+        );
+    }
+    
+    @Override
+    public boolean validateActualValues(String surgeryType, Integer dayNumber, 
+                                       Integer painLevel, Integer mobilityLevel, Integer fatigueLevel) {
+        log.debug("Validating actual values for surgery: {}, day: {}", surgeryType, dayNumber);
+        
+        Optional<RecoveryCurveProfile> curve = getCurveEntry(surgeryType, dayNumber);
+        
+        if (curve.isEmpty()) {
+            log.warn("No recovery curve found for validation");
+            return false;
+        }
+        
+        RecoveryCurveProfile rc = curve.get();
+        
+        boolean painValid = rc.isPainWithinRange(painLevel);
+        boolean mobilityValid = rc.isMobilityWithinRange(mobilityLevel);
+        boolean fatigueValid = rc.isFatigueWithinRange(fatigueLevel);
+        
+        log.debug("Validation results - Pain: {}, Mobility: {}, Fatigue: {}", 
+                painValid, mobilityValid, fatigueValid);
+        
+        return painValid && mobilityValid && fatigueValid;
+    }
+    
+    @Override
+    public List<RecoveryCurveProfile> getCurvesByDayRange(String surgeryType, Integer minDay, Integer maxDay) {
+        log.debug("Fetching curves for surgery: {}, days {}-{}", surgeryType, minDay, maxDay);
+        return recoveryCurveProfileRepository.findBySurgeryTypeAndDayRange(surgeryType, minDay, maxDay);
+    }
+    
+    // Helper method to get curve for specific patient day
+    public Optional<RecoveryCurveProfile> getCurveForPatientDay(Long patientId, LocalDate logDate) {
+        // This would need patient repository to get surgery date
+        // For now, returning empty
+        return Optional.empty();
+    }
+    
+    // Helper method to generate recovery report
+    public Map<String, Object> generateRecoveryReport(String surgeryType) {
+        log.debug("Generating recovery report for surgery type: {}", surgeryType);
+        
+        List<RecoveryCurveProfile> curves = getCurveForSurgery(surgeryType);
+        
+        if (curves.isEmpty()) {
+            return Map.of("error", "No recovery curves found for surgery type: " + surgeryType);
+        }
+        
+        Map<String, Object> report = new HashMap<>();
+        report.put("surgeryType", surgeryType);
+        report.put("totalDays", curves.size());
+        report.put("phases", new HashMap<>());
+        
+        // Group by phase
+        curves.forEach(curve -> {
+            String phase = curve.getRecoveryPhase() != null ? curve.getRecoveryPhase() : "UNKNOWN";
+            ((Map<String, List<RecoveryCurveProfile>>) report.get("phases"))
+                .computeIfAbsent(phase, k -> new ArrayList<>())
+                .add(curve);
+        });
+        
+        // Calculate averages
+        double avgPain = curves.stream().mapToInt(RecoveryCurveProfile::getExpectedPainLevel).average().orElse(0);
+        double avgMobility = curves.stream().mapToInt(RecoveryCurveProfile::getExpectedMobilityLevel).average().orElse(0);
+        double avgFatigue = curves.stream().mapToInt(RecoveryCurveProfile::getExpectedFatigueLevel).average().orElse(0);
+        
+        report.put("averagePainLevel", avgPain);
+        report.put("averageMobilityLevel", avgMobility);
+        report.put("averageFatigueLevel", avgFatigue);
+        
+        return report;
+    }
+}
