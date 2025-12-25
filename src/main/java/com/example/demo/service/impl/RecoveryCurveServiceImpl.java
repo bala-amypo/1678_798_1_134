@@ -5,93 +5,98 @@ import com.example.demo.model.RecoveryCurveProfile;
 import com.example.demo.repository.RecoveryCurveProfileRepository;
 import com.example.demo.service.RecoveryCurveService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class RecoveryCurveServiceImpl implements RecoveryCurveService {
     
     private final RecoveryCurveProfileRepository recoveryCurveProfileRepository;
     
     @Override
-    @Transactional
     public RecoveryCurveProfile createCurveEntry(RecoveryCurveProfile curve) {
-        // Validate required fields
-        if (curve.getSurgeryType() == null || curve.getSurgeryType().trim().isEmpty()) {
-            throw new IllegalArgumentException("Surgery type is required");
-        }
+        log.info("Creating recovery curve entry for surgery: {}, day: {}", 
+                curve.getSurgeryType(), curve.getDayNumber());
         
-        if (curve.getDayNumber() == null || curve.getDayNumber() < 0) {
-            throw new IllegalArgumentException("Day number must be non-negative");
-        }
+        // Check if entry already exists
+        Optional<RecoveryCurveProfile> existing = recoveryCurveProfileRepository
+                .findBySurgeryTypeAndDayNumber(curve.getSurgeryType(), curve.getDayNumber());
         
-        // Check for duplicate entry for same surgery type and day
-        List<RecoveryCurveProfile> existing = recoveryCurveProfileRepository
-                .findBySurgeryTypeOrderByDayNumberAsc(curve.getSurgeryType());
-        
-        boolean duplicate = existing.stream()
-                .anyMatch(c -> c.getDayNumber().equals(curve.getDayNumber()));
-        
-        if (duplicate) {
+        if (existing.isPresent()) {
             throw new IllegalArgumentException(
-                    String.format("Curve entry already exists for surgery type %s on day %d",
+                    String.format("Recovery curve already exists for surgery %s, day %d", 
                             curve.getSurgeryType(), curve.getDayNumber()));
         }
         
-        // Validate symptom levels
-        validateSymptomLevel(curve.getExpectedPainLevel(), "Pain");
-        validateSymptomLevel(curve.getExpectedMobilityLevel(), "Mobility");
-        validateSymptomLevel(curve.getExpectedFatigueLevel(), "Fatigue");
+        RecoveryCurveProfile savedCurve = recoveryCurveProfileRepository.save(curve);
+        log.info("Recovery curve entry created with ID: {}", savedCurve.getId());
         
-        return recoveryCurveProfileRepository.save(curve);
-    }
-    
-    @Override
-    public List<RecoveryCurveProfile> getCurveForSurgery(String surgeryType) {
-        return recoveryCurveProfileRepository.findBySurgeryTypeOrderByDayNumberAsc(surgeryType);
+        return savedCurve;
     }
     
     @Override
     public List<RecoveryCurveProfile> getAllCurves() {
+        log.debug("Fetching all recovery curves");
         return recoveryCurveProfileRepository.findAll();
     }
     
     @Override
-    public RecoveryCurveProfile getCurveById(Long id) {
-        return recoveryCurveProfileRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Recovery curve not found with id: " + id));
+    public List<RecoveryCurveProfile> getCurveForSurgery(String surgeryType) {
+        log.debug("Fetching recovery curve for surgery type: {}", surgeryType);
+        return recoveryCurveProfileRepository.findBySurgeryTypeOrderByDayNumberAsc(surgeryType);
     }
     
     @Override
-    @Transactional
-    public RecoveryCurveProfile updateCurve(Long id, RecoveryCurveProfile curve) {
-        RecoveryCurveProfile existing = getCurveById(id);
-        
-        // Validate symptom levels
-        validateSymptomLevel(curve.getExpectedPainLevel(), "Pain");
-        validateSymptomLevel(curve.getExpectedMobilityLevel(), "Mobility");
-        validateSymptomLevel(curve.getExpectedFatigueLevel(), "Fatigue");
-        
-        existing.setExpectedPainLevel(curve.getExpectedPainLevel());
-        existing.setExpectedMobilityLevel(curve.getExpectedMobilityLevel());
-        existing.setExpectedFatigueLevel(curve.getExpectedFatigueLevel());
-        
-        return recoveryCurveProfileRepository.save(existing);
+    public Optional<RecoveryCurveProfile> getCurveEntry(String surgeryType, Integer dayNumber) {
+        log.debug("Fetching recovery curve for surgery: {}, day: {}", surgeryType, dayNumber);
+        return recoveryCurveProfileRepository.findBySurgeryTypeAndDayNumber(surgeryType, dayNumber);
     }
     
     @Override
-    @Transactional
-    public void deleteCurve(Long id) {
-        RecoveryCurveProfile curve = getCurveById(id);
-        recoveryCurveProfileRepository.delete(curve);
+    public List<RecoveryCurveProfile> getCurveForPhase(String surgeryType, String phase) {
+        log.debug("Fetching recovery curve for surgery: {}, phase: {}", surgeryType, phase);
+        return recoveryCurveProfileRepository.findBySurgeryTypeAndRecoveryPhase(surgeryType, phase);
     }
     
-    private void validateSymptomLevel(Integer level, String symptomName) {
-        if (level != null && (level < 0 || level > 10)) {
-            throw new IllegalArgumentException(symptomName + " level must be between 0 and 10");
+    @Override
+    public RecoveryCurveProfile updateCurveEntry(Long id, RecoveryCurveProfile curve) {
+        log.info("Updating recovery curve entry with ID: {}", id);
+        
+        RecoveryCurveProfile existing = recoveryCurveProfileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Recovery curve", "id", id));
+        
+        // Update fields if provided
+        if (curve.getSurgeryType() != null) {
+            existing.setSurgeryType(curve.getSurgeryType());
         }
-    }
-}
+        if (curve.getDayNumber() != null) {
+            existing.setDayNumber(curve.getDayNumber());
+        }
+        if (curve.getExpectedPainLevel() != null) {
+            existing.setExpectedPainLevel(curve.getExpectedPainLevel());
+        }
+        if (curve.getExpectedMobilityLevel() != null) {
+            existing.setExpectedMobilityLevel(curve.getExpectedMobilityLevel());
+        }
+        if (curve.getExpectedFatigueLevel() != null) {
+            existing.setExpectedFatigueLevel(curve.getExpectedFatigueLevel());
+        }
+        if (curve.getMinPainLevel() != null) {
+            existing.setMinPainLevel(curve.getMinPainLevel());
+        }
+        if (curve.getMaxPainLevel() != null) {
+            existing.setMaxPainLevel(curve.getMaxPainLevel());
+        }
+        if (curve.getMinMobilityLevel() != null) {
+            existing.setMinMobilityLevel(curve.getMinMobilityLevel());
+        }
+        if (curve.getMaxMobilityLevel() != null) {
+            existing.setMaxMobilityLevel(curve.getMaxMobilityLevel());
+        }
+        if (curve.getMinFatigueLevel
