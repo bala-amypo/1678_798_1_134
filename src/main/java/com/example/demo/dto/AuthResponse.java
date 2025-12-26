@@ -1,7 +1,14 @@
 package com.example.demo.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Authentication response containing user details and JWT token")
 public class AuthResponse {
+    
+    @Schema(description = "User email address", example = "user@example.com")
     private String email;
+    
+    @Schema(description = "JWT authentication token", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
     private String token;
 
     public AuthResponse() {

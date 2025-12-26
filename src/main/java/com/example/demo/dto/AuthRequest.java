@@ -1,7 +1,14 @@
 package com.example.demo.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Authentication request containing user credentials")
 public class AuthRequest {
+    
+    @Schema(description = "User email address", example = "user@example.com", required = true)
     private String email;
+    
+    @Schema(description = "User password", example = "password123", required = true)
     private String password;
 
     public AuthRequest() {
