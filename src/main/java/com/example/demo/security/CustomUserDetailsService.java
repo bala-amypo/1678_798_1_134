@@ -1,5 +1,7 @@
 package com.example.demo.security;
 
+import com.example.demo.model.AppUser;
+import com.example.demo.repository.AppUserRepository;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,11 +13,20 @@ import java.util.ArrayList;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
     
+    private final AppUserRepository appUserRepository;
+    
+    public CustomUserDetailsService(AppUserRepository appUserRepository) {
+        this.appUserRepository = appUserRepository;
+    }
+    
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        AppUser user = appUserRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        
         return User.builder()
-                .username("test@example.com")
-                .password("$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
+                .username(user.getEmail())
+                .password(user.getPassword())
                 .authorities(new ArrayList<>())
                 .build();
     }
